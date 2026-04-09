@@ -1,0 +1,38 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'dashboard' => 'ড্যাশবোর্ড',
+    'users' => 'ব্যবহারকারী',
+    'settings' => 'সেটিংস',
+    'profile' => 'প্রোফাইল',
+    'logs' => 'লগ',
+    'notifications' => 'বিজ্ঞপ্তি',
+    'reports' => 'রিপোর্ট',
+    'analytics' => 'বিশ্লেষণ',
+    'management' => 'ব্যবস্থাপনা',
+    'configuration' => 'কনফিগারেশন',
+    'roles' => 'ভূমিকা',
+    'permissions' => 'অনুমতি',
+    'categories' => 'বিভাগ',
+    'products' => 'পণ্য',
+    'orders' => 'অর্ডার',
+    'customers' => 'গ্রাহক',
+    'messages' => 'বার্তা',
+    'files' => 'ফাইল',
+    'media' => 'মিডিয়া',
+    'pages' => 'পৃষ্ঠা',
+    'posts' => 'পোস্ট',
+    'comments' => 'মন্তব্য',
+    'tags' => 'ট্যাগ',
+    'calendar' => 'ক্যালেন্ডার',
+    'tasks' => 'কাজ',
+    'support' => 'সাপোর্ট',
+    'help' => 'সাহায্য',
+    'home' => 'হোম',
+    'system' => 'সিস্টেম',
+    'tools' => 'টুলস',
+    'activity' => 'কার্যকলাপ',
+    'audit' => 'অডিট',
+];

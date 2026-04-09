@@ -1,0 +1,38 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'dashboard' => '仪表盘',
+    'users' => '用户',
+    'settings' => '设置',
+    'profile' => '个人资料',
+    'logs' => '日志',
+    'notifications' => '通知',
+    'reports' => '报告',
+    'analytics' => '分析',
+    'management' => '管理',
+    'configuration' => '配置',
+    'roles' => '角色',
+    'permissions' => '权限',
+    'categories' => '分类',
+    'products' => '产品',
+    'orders' => '订单',
+    'customers' => '客户',
+    'messages' => '消息',
+    'files' => '文件',
+    'media' => '媒体',
+    'pages' => '页面',
+    'posts' => '文章',
+    'comments' => '评论',
+    'tags' => '标签',
+    'calendar' => '日历',
+    'tasks' => '任务',
+    'support' => '支持',
+    'help' => '帮助',
+    'home' => '首页',
+    'system' => '系统',
+    'tools' => '工具',
+    'activity' => '活动',
+    'audit' => '审计',
+];

@@ -1,0 +1,38 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'dashboard' => 'ダッシュボード',
+    'users' => 'ユーザー',
+    'settings' => '設定',
+    'profile' => 'プロフィール',
+    'logs' => 'ログ',
+    'notifications' => '通知',
+    'reports' => 'レポート',
+    'analytics' => '分析',
+    'management' => '管理',
+    'configuration' => '構成',
+    'roles' => '役割',
+    'permissions' => '権限',
+    'categories' => 'カテゴリ',
+    'products' => '製品',
+    'orders' => '注文',
+    'customers' => '顧客',
+    'messages' => 'メッセージ',
+    'files' => 'ファイル',
+    'media' => 'メディア',
+    'pages' => 'ページ',
+    'posts' => '投稿',
+    'comments' => 'コメント',
+    'tags' => 'タグ',
+    'calendar' => 'カレンダー',
+    'tasks' => 'タスク',
+    'support' => 'サポート',
+    'help' => 'ヘルプ',
+    'home' => 'ホーム',
+    'system' => 'システム',
+    'tools' => 'ツール',
+    'activity' => 'アクティビティ',
+    'audit' => '監査',
+];

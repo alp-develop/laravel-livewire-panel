@@ -1,0 +1,38 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'dashboard' => 'Панель',
+    'users' => 'Пользователи',
+    'settings' => 'Настройки',
+    'profile' => 'Профиль',
+    'logs' => 'Журналы',
+    'notifications' => 'Уведомления',
+    'reports' => 'Отчёты',
+    'analytics' => 'Аналитика',
+    'management' => 'Управление',
+    'configuration' => 'Конфигурация',
+    'roles' => 'Роли',
+    'permissions' => 'Разрешения',
+    'categories' => 'Категории',
+    'products' => 'Товары',
+    'orders' => 'Заказы',
+    'customers' => 'Клиенты',
+    'messages' => 'Сообщения',
+    'files' => 'Файлы',
+    'media' => 'Медиа',
+    'pages' => 'Страницы',
+    'posts' => 'Публикации',
+    'comments' => 'Комментарии',
+    'tags' => 'Теги',
+    'calendar' => 'Календарь',
+    'tasks' => 'Задачи',
+    'support' => 'Поддержка',
+    'help' => 'Помощь',
+    'home' => 'Главная',
+    'system' => 'Система',
+    'tools' => 'Инструменты',
+    'activity' => 'Активность',
+    'audit' => 'Аудит',
+];

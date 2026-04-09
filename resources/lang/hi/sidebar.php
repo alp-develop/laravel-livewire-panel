@@ -1,0 +1,38 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'dashboard' => 'डैशबोर्ड',
+    'users' => 'उपयोगकर्ता',
+    'settings' => 'सेटिंग्स',
+    'profile' => 'प्रोफ़ाइल',
+    'logs' => 'लॉग',
+    'notifications' => 'सूचनाएं',
+    'reports' => 'रिपोर्ट',
+    'analytics' => 'विश्लेषण',
+    'management' => 'प्रबंधन',
+    'configuration' => 'कॉन्फ़िगरेशन',
+    'roles' => 'भूमिकाएं',
+    'permissions' => 'अनुमतियां',
+    'categories' => 'श्रेणियां',
+    'products' => 'उत्पाद',
+    'orders' => 'ऑर्डर',
+    'customers' => 'ग्राहक',
+    'messages' => 'संदेश',
+    'files' => 'फ़ाइलें',
+    'media' => 'मीडिया',
+    'pages' => 'पृष्ठ',
+    'posts' => 'पोस्ट',
+    'comments' => 'टिप्पणियां',
+    'tags' => 'टैग',
+    'calendar' => 'कैलेंडर',
+    'tasks' => 'कार्य',
+    'support' => 'सहायता',
+    'help' => 'मदद',
+    'home' => 'होम',
+    'system' => 'सिस्टम',
+    'tools' => 'उपकरण',
+    'activity' => 'गतिविधि',
+    'audit' => 'ऑडिट',
+];

@@ -1,0 +1,38 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'dashboard' => 'لوحة التحكم',
+    'users' => 'المستخدمون',
+    'settings' => 'الإعدادات',
+    'profile' => 'الملف الشخصي',
+    'logs' => 'السجلات',
+    'notifications' => 'الإشعارات',
+    'reports' => 'التقارير',
+    'analytics' => 'التحليلات',
+    'management' => 'الإدارة',
+    'configuration' => 'التكوين',
+    'roles' => 'الأدوار',
+    'permissions' => 'الصلاحيات',
+    'categories' => 'الفئات',
+    'products' => 'المنتجات',
+    'orders' => 'الطلبات',
+    'customers' => 'العملاء',
+    'messages' => 'الرسائل',
+    'files' => 'الملفات',
+    'media' => 'الوسائط',
+    'pages' => 'الصفحات',
+    'posts' => 'المقالات',
+    'comments' => 'التعليقات',
+    'tags' => 'العلامات',
+    'calendar' => 'التقويم',
+    'tasks' => 'المهام',
+    'support' => 'الدعم',
+    'help' => 'المساعدة',
+    'home' => 'الرئيسية',
+    'system' => 'النظام',
+    'tools' => 'الأدوات',
+    'activity' => 'النشاط',
+    'audit' => 'التدقيق',
+];

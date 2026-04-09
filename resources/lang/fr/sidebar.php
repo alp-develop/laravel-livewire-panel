@@ -1,0 +1,38 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'dashboard' => 'Tableau de bord',
+    'users' => 'Utilisateurs',
+    'settings' => 'Parametres',
+    'profile' => 'Profil',
+    'logs' => 'Journaux',
+    'notifications' => 'Notifications',
+    'reports' => 'Rapports',
+    'analytics' => 'Analytique',
+    'management' => 'Gestion',
+    'configuration' => 'Configuration',
+    'roles' => 'Roles',
+    'permissions' => 'Permissions',
+    'categories' => 'Categories',
+    'products' => 'Produits',
+    'orders' => 'Commandes',
+    'customers' => 'Clients',
+    'messages' => 'Messages',
+    'files' => 'Fichiers',
+    'media' => 'Medias',
+    'pages' => 'Pages',
+    'posts' => 'Articles',
+    'comments' => 'Commentaires',
+    'tags' => 'Etiquettes',
+    'calendar' => 'Calendrier',
+    'tasks' => 'Taches',
+    'support' => 'Support',
+    'help' => 'Aide',
+    'home' => 'Accueil',
+    'system' => 'Systeme',
+    'tools' => 'Outils',
+    'activity' => 'Activite',
+    'audit' => 'Audit',
+];

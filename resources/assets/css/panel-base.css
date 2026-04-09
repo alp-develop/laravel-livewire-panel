@@ -1,0 +1,6 @@
+*, *::before, *::after { box-sizing: border-box; }
+body {
+    margin: 0;
+    font-family: var(--panel-font, sans-serif);
+    font-size: var(--panel-font-size, 14px);
+}
