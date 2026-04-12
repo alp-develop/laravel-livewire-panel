@@ -102,6 +102,7 @@ See [Installation](docs/installation.md) for the full interactive menu, modules 
 | [Icons](docs/icons.md) | Heroicons + custom icon libraries |
 | [Localization](docs/localization.md) | Language selector, translations, i18n |
 | [Plugins](docs/plugins.md) | Cross-panel extensions with navigation and widgets |
+| [Notifications](docs/notifications.md) | Navbar bell icon, badge, polling, notification providers |
 | [Events](docs/events.md) | Audit events for login, registration, CRUD, access control |
 | [Security](docs/security.md) | Rate limiting, CSS sanitization, gate drivers, recommendations |
 | [API Reference](docs/api-reference.md) | Interfaces, classes, registries, events |
@@ -119,7 +120,7 @@ See [Installation](docs/installation.md) for the full interactive menu, modules 
 - **Widget system** -- StatsCard, Chart and RecentTable widgets. Create custom widgets with `panel:make-widget`.
 - **Plugin system** -- Cross-panel extensions with lifecycle hooks, navigation and widgets.
 - **Search** -- Global search (`Ctrl+K`) with pluggable providers and permission filtering.
-- **Notifications** -- Polling notification system with count badge and provider interface.
+- **Notifications** -- Polling notification system with count badge and provider interface. See [Notifications](docs/notifications.md).
 - **Gate authorization** -- PanelGate with Spatie, Laravel Gate or custom drivers.
 - **Password reset** -- Full forgot-password -> email -> reset-password flow out of the box. Customizable notification class and email template via `panel:make-component forgot-password-notification`.
 - **Audit events** -- 8 event classes for login, logout, registration, CRUD operations and access denial. See [Events](docs/events.md).

@@ -103,6 +103,8 @@ Built-in drivers: `LaravelGateDriver`, `SpatieGateDriver`, `NullGateDriver`.
 | `markAsRead(string $id, string $panelId)` | `void` | Mark a notification as read |
 | `markAllAsRead(string $panelId)` | `void` | Mark all as read |
 
+See [Notifications](notifications.md) for usage guide, item structure, and registration examples.
+
 ---
 
 ## Main Classes

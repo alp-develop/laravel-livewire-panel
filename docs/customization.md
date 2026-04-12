@@ -214,6 +214,8 @@ The sidebar state system uses a combination of `initial_state`, `persist_state`,
 | `notification_polling_interval` | int | `30` | Polling interval in seconds |
 | `user_popover_header_component` | string\|null | `null` | Livewire component name to replace the default user popover header. Generate with `panel:make-component user-popover-header` |
 
+To implement a notification provider and feed data into the bell icon, see [Notifications](notifications.md).
+
 ---
 
 ## Layout options
