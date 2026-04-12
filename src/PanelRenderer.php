@@ -72,7 +72,7 @@ final class PanelRenderer
 
         $favicon = $styleCfg['layout']['favicon'] ?? null;
         if ($favicon) {
-            $output .= '<link rel="icon" href="' . e($favicon) . '">' . "\n";
+            $output .= '<link rel="icon" href="' . e($favicon) . '" data-navigate-once>' . "\n";
         }
 
         $output .= '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">' . "\n";
@@ -170,6 +170,7 @@ final class PanelRenderer
             'sidebar_show_user_menu' => $styleCfg['sidebar']['show_user_menu'] ?? false,
             'sidebar_show_avatar'    => $styleCfg['sidebar']['show_avatar'] ?? true,
             'avatar_resolver'        => $styleCfg['layout']['avatar_resolver'] ?? null,
+            'user_popover_header_component' => $styleCfg['navbar']['user_popover_header_component'] ?? null,
         ];
 
         self::$cache['layoutConfig'][$panelId] = $result;

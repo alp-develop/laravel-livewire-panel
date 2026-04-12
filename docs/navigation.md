@@ -317,8 +317,8 @@ You can inject custom Livewire components into the navbar without creating a cus
 
 | Position | Description |
 |----------|-------------|
-| `left` | Rendered after the page title, before the right-side actions |
-| `right` | Rendered after notifications, before the user menu |
+| `left` | Rendered after the page title, on the left side |
+| `right` | Rendered on the right side, before the default action icons (search, dark mode, locale, notifications, user menu) |
 
 Each entry can be a **string** (component name) or an **array** with restrictions:
 

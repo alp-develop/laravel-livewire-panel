@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-04-12
+
+### Added
+
+- `user-popover-header` type for `panel:make-component` command. Generates a full Livewire component (`{Panel}UserPopoverHeader`) and Blade view to completely customize the user popover header in the navbar dropdown.
+- `user_popover_header_component` option in style config (`navbar` section). Accepts a Livewire component name (string) to replace the default user popover header. Compatible with `config:cache`.
+- `.panel-navbar-spacer` CSS class: Flex spacer element between custom navbar components and the default action icons (search, dark mode, locale, notifications, user menu).
+- Navbar custom components positioning: `navbar_components.left` renders after the page title, on the left side. `navbar_components.right` renders after the spacer, before the default action icons.
+
+### Fixed
+
+- Navbar mobile overflow: On screens <= 768px, the page title is now hidden, padding and gaps are reduced, the locale selector hides its globe icon (shows only the language code), the user name is hidden, and the user trigger is compacted. All elements stay in a single line.
+- Navbar mobile z-index: Dropdowns and popovers now render correctly above other content on mobile (removed `overflow: hidden` that was clipping them).
+- Favicon `<link>` now includes `data-navigate-once` to prevent re-fetching on every SPA navigation.
+
+### Changed
+
+- `.panel-navbar-title` no longer has `flex: 1`. A dedicated `.panel-navbar-spacer` element now handles the flex expansion between custom components and the default action icons.
+- Navbar template structure reordered: `[hamburger] [title] [left components] [spacer] [right components] [default actions]`.
+
 ## [1.0.0] - 2026-04-11
 
 ### Added

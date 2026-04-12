@@ -297,6 +297,117 @@ final class AdminNavbar extends AbstractNavbar
 
 ---
 
+## Custom User Popover Header
+
+The user popover header is the section inside the user dropdown that shows the avatar, name and email. You can replace it with a full Livewire component to add custom data, queries, or any PHP logic.
+
+### Generate
+
+```bash
+php artisan panel:make-component user-popover-header --panel=admin
+```
+
+This generates:
+- `app/Livewire/AdminUserPopoverHeader.php` -- Livewire component
+- `resources/views/livewire/admin-user-popover-header.blade.php` -- Blade view
+
+### Generated class
+
+```php
+// app/Livewire/AdminUserPopoverHeader.php
+namespace App\Livewire;
+
+use Livewire\Attributes\Locked;
+use Livewire\Component;
+use Illuminate\Contracts\View\View;
+
+final class AdminUserPopoverHeader extends Component
+{
+    #[Locked]
+    public $user;
+
+    public bool $showAvatar = true;
+    public ?string $avatarUrl = null;
+
+    public function render(): View
+    {
+        return view('livewire.admin-user-popover-header');
+    }
+}
+```
+
+The `$user` property is marked with `#[Locked]` to prevent client-side tampering via Livewire's hydration mechanism. The value is passed from the navbar and cannot be modified by the browser.
+
+The component receives three properties from the navbar:
+
+| Property | Type | Description |
+|---|---|---|
+| `$user` | Model (Locked) | The authenticated user object. Cannot be modified from the client |
+| `$showAvatar` | bool | Whether the avatar should be shown (from config) |
+| `$avatarUrl` | string\|null | Resolved avatar URL (from `avatar_resolver`) |
+
+You can add any logic to the component:
+
+```php
+final class AdminUserPopoverHeader extends Component
+{
+    #[Locked]
+    public $user;
+
+    public bool $showAvatar = true;
+    public ?string $avatarUrl = null;
+
+    public function render(): View
+    {
+        return view('livewire.admin-user-popover-header', [
+            'role'      => $this->user->roles->first()?->name ?? 'User',
+            'lastLogin' => $this->user->last_login_at?->diffForHumans(),
+            'company'   => $this->user->company?->name,
+        ]);
+    }
+}
+```
+
+### Generated view
+
+```blade
+<div class="panel-sidebar-user-popover-header">
+    @if ($showAvatar && $avatarUrl)
+        <img src="{{ $avatarUrl }}" alt="{{ $user->name }}" class="panel-sidebar-avatar panel-sidebar-avatar--lg" style="object-fit:cover" />
+    @elseif ($showAvatar)
+        <span class="panel-sidebar-avatar panel-sidebar-avatar--lg">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
+    @endif
+    <div style="min-width:0">
+        <div class="panel-sidebar-user-popover-name">{{ $user->name }}</div>
+        <div class="panel-sidebar-user-popover-email">{{ $user->email }}</div>
+    </div>
+</div>
+```
+
+Modify the view freely. The available CSS classes for consistency:
+
+| Class | Purpose |
+|---|---|
+| `panel-sidebar-user-popover-header` | Header container with flex layout |
+| `panel-sidebar-avatar` | Avatar circle (32px) |
+| `panel-sidebar-avatar--lg` | Large avatar (40px) |
+| `panel-sidebar-user-popover-name` | User name text (bold) |
+| `panel-sidebar-user-popover-email` | Secondary text (muted) |
+
+### Registering
+
+Add to your style config file (`config/laravel-livewire-panel/{style}.php`):
+
+```php
+'navbar' => [
+    'user_popover_header_component' => 'admin-user-popover-header',
+],
+```
+
+The value is the Livewire component name (kebab-case string). This is compatible with `config:cache` since it is a plain string.
+
+---
+
 ## CSS variables with custom views
 
 The CSS variables system works at the layout level, not inside individual components. When you create a custom sidebar or navbar, the same `var(--panel-*)` variables are available in its view:

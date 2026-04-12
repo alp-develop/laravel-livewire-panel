@@ -6,12 +6,16 @@
 
     @if ($showPageTitle)
     <div class="panel-navbar-title">{{ $pageTitle }}</div>
-    @else
-    <div class="panel-navbar-title" style="flex:1"></div>
     @endif
 
     @foreach ($navbarComponentsLeft as $componentLeft)
         @livewire($componentLeft, key('navbar-left-' . $loop->index))
+    @endforeach
+
+    <div class="panel-navbar-spacer"></div>
+
+    @foreach ($navbarComponentsRight as $componentRight)
+        @livewire($componentRight, key('navbar-right-' . $loop->index))
     @endforeach
 
     <div class="panel-navbar-actions">
@@ -52,10 +56,6 @@
         @livewire('panel-notifications', ['polling' => $notificationPolling, 'pollingInterval' => $notificationPollingInterval])
         @endif
 
-        @foreach ($navbarComponentsRight as $componentRight)
-            @livewire($componentRight, key('navbar-right-' . $loop->index))
-        @endforeach
-
         @if ($user && $showUserMenu)
             <div class="panel-dropdown" x-data="{ open: false }" x-on:click.outside="open = false" @keydown.escape.window="open = false">
                 <button class="panel-user-trigger" x-on:click="open = !open">
@@ -68,6 +68,9 @@
                     <x-panel::icon name="chevron-down" size="14" class="panel-user-chevron" />
                 </button>
                 <div class="panel-sidebar-user-popover panel-navbar-popover" x-show="open" x-transition x-cloak>
+                    @if ($userPopoverComponent)
+                        @livewire($userPopoverComponent, ['user' => $user, 'showAvatar' => $showAvatar, 'avatarUrl' => $avatarUrl])
+                    @else
                     <div class="panel-sidebar-user-popover-header">
                         @if ($showAvatar && $avatarUrl)
                             <img src="{{ $avatarUrl }}" alt="{{ $user->name }}" class="panel-sidebar-avatar panel-sidebar-avatar--lg" style="object-fit:cover" />
@@ -79,6 +82,7 @@
                             <div class="panel-sidebar-user-popover-email">{{ $user->email }}</div>
                         </div>
                     </div>
+                    @endif
                     @if (!empty($userMenu))
                         @foreach ($userMenu as $menuItem)
                             @if (($menuItem['type'] ?? '') === 'divider')

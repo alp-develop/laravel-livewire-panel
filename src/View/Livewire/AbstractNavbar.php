@@ -69,6 +69,7 @@ abstract class AbstractNavbar extends Component
             'showAvatar'        => $layoutConfig['navbar_show_avatar'] ?? true,
             'sidebarCollapsible' => $layoutConfig['sidebar_collapsible'] ?? true,
             'avatarUrl'         => $avatarUrl,
+            'userPopoverComponent' => $layoutConfig['user_popover_header_component'] ?? null,
             'localeEnabled'     => $localeEnabled,
             'availableLocales'  => $availableLocales,
             'currentLocale'     => $currentLocale,

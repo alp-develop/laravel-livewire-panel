@@ -10,12 +10,12 @@ use Illuminate\Support\Str;
 final class MakeComponentCommand extends Command
 {
     protected $signature = 'panel:make-component
-                            {type : Component type: login, register, forgot-password, reset-password, forgot-password-notification, sidebar, navbar}
+                            {type : Component type: login, register, forgot-password, reset-password, forgot-password-notification, sidebar, navbar, user-popover-header}
                             {--panel= : Panel ID (e.g.: admin). Used as class suffix}';
 
     protected $description = 'Generate a custom Livewire component ready to modify';
 
-    private const TYPES = ['login', 'register', 'forgot-password', 'reset-password', 'forgot-password-notification', 'sidebar', 'navbar'];
+    private const TYPES = ['login', 'register', 'forgot-password', 'reset-password', 'forgot-password-notification', 'sidebar', 'navbar', 'user-popover-header'];
 
     public function handle(): int
     {
@@ -29,6 +29,10 @@ final class MakeComponentCommand extends Command
 
         if ($type === 'forgot-password-notification') {
             return $this->publishForgotPasswordNotification();
+        }
+
+        if ($type === 'user-popover-header') {
+            return $this->publishUserPopoverHeader();
         }
 
         $panelStudly  = Str::studly($panelId);
@@ -414,6 +418,85 @@ final class MakeComponentCommand extends Command
             </div>
         </div>
         BLADE;
+    }
+
+    private function publishUserPopoverHeader(): int
+    {
+        $panel       = is_string($this->option('panel')) ? $this->option('panel') : 'admin';
+        $panelStudly = str($panel)->studly()->toString();
+        $panelKebab  = str($panel)->kebab()->toString();
+
+        $className = "{$panelStudly}UserPopoverHeader";
+        $namespace = 'App\\Livewire';
+        $classPath = app_path("Livewire/{$className}.php");
+        $viewName  = "{$panelKebab}-user-popover-header";
+        $viewPath  = resource_path("views/livewire/{$viewName}.blade.php");
+
+        if (file_exists($classPath)) {
+            $this->error("Already exists: {$classPath}");
+            return Command::FAILURE;
+        }
+
+        $this->ensureDirectory(dirname($classPath));
+        $this->ensureDirectory(dirname($viewPath));
+
+        file_put_contents($classPath, $this->userPopoverHeaderClassStub($namespace, $className, $viewName));
+        file_put_contents($viewPath, $this->userPopoverHeaderViewStub());
+
+        $this->info("Component generated:");
+        $this->line("  PHP : {$classPath}");
+        $this->line("  View: {$viewPath}");
+        $this->newLine();
+        $this->line("Add to your style config under 'navbar':");
+        $this->line("  'user_popover_header_component' => '{$panelKebab}-user-popover-header',");
+
+        return Command::SUCCESS;
+    }
+
+    private function userPopoverHeaderClassStub(string $namespace, string $className, string $viewName): string
+    {
+        return <<<PHP
+<?php
+
+declare(strict_types=1);
+
+namespace {$namespace};
+
+use Livewire\Attributes\Locked;
+use Livewire\Component;
+use Illuminate\Contracts\View\View;
+
+final class {$className} extends Component
+{
+    #[Locked]
+    public \$user;
+
+    public bool \$showAvatar = true;
+    public ?string \$avatarUrl = null;
+
+    public function render(): View
+    {
+        return view('livewire.{$viewName}');
+    }
+}
+PHP;
+    }
+
+    private function userPopoverHeaderViewStub(): string
+    {
+        return <<<'BLADE'
+<div class="panel-sidebar-user-popover-header">
+    @if ($showAvatar && $avatarUrl)
+        <img src="{{ $avatarUrl }}" alt="{{ $user->name }}" class="panel-sidebar-avatar panel-sidebar-avatar--lg" style="object-fit:cover" />
+    @elseif ($showAvatar)
+        <span class="panel-sidebar-avatar panel-sidebar-avatar--lg">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
+    @endif
+    <div style="min-width:0">
+        <div class="panel-sidebar-user-popover-name">{{ $user->name }}</div>
+        <div class="panel-sidebar-user-popover-email">{{ $user->email }}</div>
+    </div>
+</div>
+BLADE;
     }
 
     private function publishForgotPasswordNotification(): int

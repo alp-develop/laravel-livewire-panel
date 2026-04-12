@@ -54,6 +54,21 @@ php artisan panel:make-component navbar           --panel=operator
 - `resources/views/emails/{panel}-reset-password.blade.php`
 - Config snippet for `components.forgot-password-notification`
 
+**Output for `user-popover-header`:**
+- `app/Livewire/{Panel}UserPopoverHeader.php` (Livewire component with `$user`, `$showAvatar`, `$avatarUrl` public properties)
+- `resources/views/livewire/{panel}-user-popover-header.blade.php`
+- Config snippet for `navbar.user_popover_header_component`
+
+The generated Livewire component receives the authenticated user object and avatar data as public properties. You can add any PHP logic, queries, or computed properties to customize the header content.
+
+Add to your style config (`config/laravel-livewire-panel/{style}.php`):
+
+```php
+'navbar' => [
+    'user_popover_header_component' => '{panel}-user-popover-header',
+],
+```
+
 ---
 
 ## Make Module
@@ -209,7 +224,7 @@ php artisan panel:upgrade
 | Command | Description |
 |---|---|
 | `panel:install` | First-time setup |
-| `panel:make-component {type} --panel={id}` | Custom login/register/forgot-password/sidebar/navbar |
+| `panel:make-component {type} --panel={id}` | Custom login/register/forgot-password/sidebar/navbar/user-popover-header |
 | `panel:make-module {Name}` | New module with routes and nav |
 | `panel:make-widget {Name}` | New dashboard widget |
 | `panel:make-page {Name}` | New public page |

@@ -59,6 +59,7 @@ return [
         'show_page_title'                => true,
         'notification_polling'           => true,
         'notification_polling_interval'  => 30,
+        'user_popover_header_component'  => null,
     ],
 
     'theming' => [
@@ -211,6 +212,7 @@ The sidebar state system uses a combination of `initial_state`, `persist_state`,
 | `show_page_title` | bool | `true` | Show current page title in the navbar |
 | `notification_polling` | bool | `true` | Enable automatic polling for new notifications |
 | `notification_polling_interval` | int | `30` | Polling interval in seconds |
+| `user_popover_header_component` | string\|null | `null` | Livewire component name to replace the default user popover header. Generate with `panel:make-component user-popover-header` |
 
 ---
 
