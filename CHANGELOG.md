@@ -8,8 +8,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
-- `docs/notifications.md`: Dedicated documentation for the notification system. Covers enabling notifications, creating and registering a `NotificationProviderInterface`, item structure, badge behavior, user actions, localization keys, plugin registration, and a complete example with Laravel `DatabaseNotifications`.
+- `AbstractPanelNotifications`: Base class for custom notification components. Provides `mount()`, `render()`, `markAsRead()`, `markAllAsRead()` and `view()` override point.
+- `notifications` type for `panel:make-component` command. Generates a Livewire component extending `AbstractPanelNotifications` and a full Blade view copy.
+- `components.notifications` config key to override the default notification component per panel.
+- `docs/notifications.md`: Dedicated documentation for the notification system.
 - Cross-references to `docs/notifications.md` from `README.md`, `docs/api-reference.md`, and `docs/customization.md`.
+
+### Changed
+
+- `PanelNotifications` now extends `AbstractPanelNotifications` instead of `Component` directly.
+- Navbar resolves the notification component via `panel_component('notifications')` instead of a hardcoded Livewire name.
 
 ## [1.0.1] - 2026-04-12
 

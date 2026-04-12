@@ -51,6 +51,7 @@ return [
                 'forgot-password-notification' => null,
                 'sidebar'                      => null,
                 'navbar'                       => null,
+                'notifications'                => null,
             ],
 
             'cdn' => [
@@ -165,7 +166,7 @@ return [
             ],
             'user_menu'  => [],
             'back_to'    => null,
-            'components'  => ['login' => null, 'register' => null, 'forgot-password' => null, 'reset-password' => null, 'forgot-password-notification' => null, 'sidebar' => null, 'navbar' => null],
+            'components'  => ['login' => null, 'register' => null, 'forgot-password' => null, 'reset-password' => null, 'forgot-password-notification' => null, 'sidebar' => null, 'navbar' => null, 'notifications' => null],
             'cdn'         => [],
         ],
 
@@ -185,7 +186,7 @@ return [
             ],
             'user_menu'  => [],
             'back_to'    => 'admin',
-            'components'  => ['login' => null, 'register' => null, 'forgot-password' => null, 'reset-password' => null, 'forgot-password-notification' => null, 'sidebar' => null, 'navbar' => null],
+            'components'  => ['login' => null, 'register' => null, 'forgot-password' => null, 'reset-password' => null, 'forgot-password-notification' => null, 'sidebar' => null, 'navbar' => null, 'notifications' => null],
             'cdn'         => [],
         ],
 

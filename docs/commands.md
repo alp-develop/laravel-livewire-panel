@@ -17,7 +17,7 @@ What it does:
 
 ## Make Component
 
-Generates a custom Livewire component for login, register, forgot-password, reset-password, forgot-password-notification, sidebar, or navbar.
+Generates a custom Livewire component for login, register, forgot-password, reset-password, forgot-password-notification, sidebar, navbar, or notifications.
 
 ```bash
 php artisan panel:make-component {type} [--panel=]
@@ -25,7 +25,7 @@ php artisan panel:make-component {type} [--panel=]
 
 | Argument | Values |
 |---|---|
-| `type` | `login` \| `register` \| `forgot-password` \| `reset-password` \| `forgot-password-notification` \| `sidebar` \| `navbar` |
+| `type` | `login` \| `register` \| `forgot-password` \| `reset-password` \| `forgot-password-notification` \| `sidebar` \| `navbar` \| `notifications` |
 | `--panel` | Panel ID (used as class name prefix, e.g. `admin` → `AdminLogin`) |
 
 **Examples:**
@@ -38,6 +38,7 @@ php artisan panel:make-component reset-password   --panel=admin
 php artisan panel:make-component forgot-password-notification --panel=admin
 php artisan panel:make-component sidebar          --panel=eventos
 php artisan panel:make-component navbar           --panel=operator
+php artisan panel:make-component notifications     --panel=admin
 ```
 
 **Output for `login`, `register`, `forgot-password`, `reset-password`:**
@@ -48,6 +49,13 @@ php artisan panel:make-component navbar           --panel=operator
 **Output for `sidebar`, `navbar`:**
 - `app/Livewire/{Panel}{Type}.php`
 - Corresponding Blade view
+
+**Output for `notifications`:**
+- `app/Livewire/{Panel}Notifications.php` (extends `AbstractPanelNotifications`)
+- `resources/views/livewire/{panel}-notifications.blade.php` (full copy of default dropdown)
+- Config snippet for `components.notifications`
+
+See [Notifications](notifications.md) for customization details.
 
 **Output for `forgot-password-notification`:**
 - `app/Notifications/{Panel}ForgotPasswordNotification.php`

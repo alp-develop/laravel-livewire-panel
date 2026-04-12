@@ -53,7 +53,7 @@
         @endif
 
         @if ($showNotifications)
-        @livewire('panel-notifications', ['polling' => $notificationPolling, 'pollingInterval' => $notificationPollingInterval])
+        @livewire(panel_component('notifications'), ['polling' => $notificationPolling, 'pollingInterval' => $notificationPollingInterval])
         @endif
 
         @if ($user && $showUserMenu)

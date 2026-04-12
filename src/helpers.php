@@ -33,6 +33,7 @@ if (!function_exists('panel_component')) {
             'forgot-password' => ForgotPasswordComponent::class,
             'sidebar'         => Sidebar::class,
             'navbar'          => Navbar::class,
+            'notifications'   => \AlpDevelop\LivewirePanel\View\Livewire\PanelNotifications::class,
         ];
 
         $resolver    = app(PanelResolver::class);

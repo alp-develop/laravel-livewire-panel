@@ -107,6 +107,26 @@ See [Notifications](notifications.md) for usage guide, item structure, and regis
 
 ---
 
+## Abstract Classes
+
+### AbstractPanelNotifications
+
+`AlpDevelop\LivewirePanel\View\Livewire\AbstractPanelNotifications`
+
+Base class for custom notification components. Extend this to fully customize the notification dropdown UI.
+
+| Method | Return | Description |
+|--------|--------|-------------|
+| `mount(bool $polling, int $pollingInterval)` | `void` | Resolves panel ID and sets polling config |
+| `markAsRead(string $id)` | `void` | Marks a notification as read via the provider |
+| `markAllAsRead()` | `void` | Marks all as read via the provider |
+| `render()` | `View` | Queries provider and renders the view |
+| `view()` | `string` | Override to return your custom Blade view path |
+
+Generate a custom component with `php artisan panel:make-component notifications --panel=admin`. See [Notifications](notifications.md).
+
+---
+
 ## Main Classes
 
 ### PanelKernel

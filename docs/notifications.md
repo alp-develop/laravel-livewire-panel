@@ -234,3 +234,68 @@ $user->notify(new OrderReceived($order->id));
 ### 3. Provider and registration
 
 Use the `AppNotificationProvider` shown above and register it in `AppServiceProvider::boot()`. The notification will appear in the navbar dropdown with the shopping cart icon, green color, title, body, and a link to the order detail.
+
+---
+
+## Custom notification component
+
+The default notification dropdown can be fully replaced with a custom Livewire component. This lets you add progress bars, dynamic content, or any custom layout.
+
+### Generate the component
+
+```bash
+php artisan panel:make-component notifications --panel=admin
+```
+
+This creates:
+- `app/Livewire/AdminNotifications.php` (extends `AbstractPanelNotifications`)
+- `resources/views/livewire/admin-notifications.blade.php` (full Blade view copy)
+
+### Register it in your panel config
+
+```php
+'components' => [
+    'notifications' => \App\Livewire\AdminNotifications::class,
+],
+```
+
+### Customize the view
+
+The generated Blade view is a full copy of the default notification dropdown. Edit it freely to add progress bars, custom items, or any dynamic content. The parent class provides:
+
+| Property / Method | Description |
+|---|---|
+| `$panelId` | Current panel ID |
+| `$polling` | Whether polling is enabled |
+| `$pollingInterval` | Polling interval in seconds |
+| `$count` (via render) | Unread notification count |
+| `$items` (via render) | Notification items array |
+| `markAsRead($id)` | Mark a single notification as read |
+| `markAllAsRead()` | Mark all notifications as read |
+
+Override the `render()` method to add custom data:
+
+```php
+namespace App\Livewire;
+
+use AlpDevelop\LivewirePanel\View\Livewire\AbstractPanelNotifications;
+use Illuminate\Contracts\View\View;
+
+final class AdminNotifications extends AbstractPanelNotifications
+{
+    protected function view(): string
+    {
+        return 'livewire.admin-notifications';
+    }
+
+    public function render(): View
+    {
+        $parentView = parent::render();
+        $parentData = $parentView->getData();
+
+        return view($this->view(), array_merge($parentData, [
+            'pendingTasks' => auth()->user()?->tasks()->pending()->count() ?? 0,
+        ]));
+    }
+}
+```
