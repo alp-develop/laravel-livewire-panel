@@ -15,7 +15,8 @@ final class MakeWidgetCommand extends Command
 
     public function handle(): int
     {
-        $name      = (string) $this->argument('name');
+        $raw       = $this->argument('name');
+        $name      = is_string($raw) ? $raw : '';
         $className = Str::studly($name);
         $viewName  = Str::kebab($name);
 
@@ -28,40 +29,15 @@ final class MakeWidgetCommand extends Command
         }
 
         $namespace = 'App\\Livewire\\Widgets';
-        $classContent = <<<PHP
-        <?php
 
-        declare(strict_types=1);
+        $classContent = StubResolver::resolve('widget.php.stub', [
+            '{{ class }}'    => $className,
+            '{{ viewName }}' => $viewName,
+        ]);
 
-        namespace {$namespace};
-
-        use AlpDevelop\LivewirePanel\Widgets\AbstractWidget;
-        use Illuminate\Contracts\View\View;
-
-        final class {$className} extends AbstractWidget
-        {
-            public function render(): View
-            {
-                return view('livewire.widgets.{$viewName}');
-            }
-        }
-        PHP;
-
-        $classContent = implode("\n", array_map(
-            fn (string $line) => ltrim($line),
-            explode("\n", $classContent),
-        ));
-
-        $viewContent = <<<BLADE
-        <x-panel::card :title="\$title">
-            {{-- Widget {$className} content --}}
-        </x-panel::card>
-        BLADE;
-
-        $viewContent = implode("\n", array_map(
-            fn (string $line) => ltrim($line),
-            explode("\n", $viewContent),
-        ));
+        $viewContent = StubResolver::resolve('widget.blade.stub', [
+            '{{ class }}' => $className,
+        ]);
 
         $this->ensureDirectory(dirname($classPath));
         $this->ensureDirectory(dirname($viewPath));
@@ -74,13 +50,13 @@ final class MakeWidgetCommand extends Command
         $this->line("  View: {$viewPath}");
 
         if ($this->option('test')) {
-            $this->generateTest($className, $namespace, $viewName);
+            $this->generateTest($className, $namespace);
         }
 
         return Command::SUCCESS;
     }
 
-    private function generateTest(string $className, string $namespace, string $viewName): void
+    private function generateTest(string $className, string $namespace): void
     {
         $testPath = base_path("tests/Feature/Widgets/{$className}Test.php");
 
@@ -116,7 +92,7 @@ final class MakeWidgetCommand extends Command
         PHP;
 
         $testContent = implode("\n", array_map(
-            fn (string $line) => ltrim($line),
+            ltrim(...),
             explode("\n", $testContent),
         ));
 

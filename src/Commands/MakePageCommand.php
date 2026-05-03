@@ -17,7 +17,8 @@ final class MakePageCommand extends Command
 
     public function handle(): int
     {
-        $name       = Str::studly((string) $this->argument('name'));
+        $raw        = $this->argument('name');
+        $name       = Str::studly(is_string($raw) ? $raw : '');
         $kebabName  = Str::kebab($name);
         $middleware  = (array) $this->option('middleware');
         $classPath  = app_path("Livewire/Pages/{$name}Page.php");
@@ -73,37 +74,15 @@ final class MakePageCommand extends Command
 
     private function buildClass(string $name, string $kebabName): string
     {
-        return <<<PHP
-        <?php
-
-        declare(strict_types=1);
-
-        namespace App\Livewire\Pages;
-
-        use Illuminate\Contracts\View\View;
-        use Livewire\Attributes\Layout;
-        use Livewire\Component;
-
-        #[Layout('panel::layouts.public', ['title' => '{$name}'])]
-        final class {$name}Page extends Component
-        {
-            public function render(): View
-            {
-                return view('livewire.pages.{$kebabName}');
-            }
-        }
-        PHP;
+        return StubResolver::resolve('page.php.stub', [
+            '{{ class }}'    => $name,
+            '{{ viewName }}' => $kebabName,
+        ]);
     }
 
     private function buildView(string $name): string
     {
-        return <<<BLADE
-        <div>
-            <div class="panel-page-header">
-                <h1>{$name}</h1>
-            </div>
-        </div>
-        BLADE;
+        return "<div>\n    <div class=\"panel-page-header\">\n        <h1>{$name}</h1>\n    </div>\n</div>\n";
     }
 
     private function ensureDirectory(string $path): void

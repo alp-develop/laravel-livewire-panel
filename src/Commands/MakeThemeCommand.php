@@ -14,7 +14,8 @@ final class MakeThemeCommand extends Command
 
     public function handle(): int
     {
-        $name      = (string) $this->argument('name');
+        $raw       = $this->argument('name');
+        $name      = is_string($raw) ? $raw : '';
         $className = Str::studly($name) . 'Theme';
         $id        = Str::snake($name);
         $path      = app_path("Themes/{$className}.php");
@@ -25,7 +26,10 @@ final class MakeThemeCommand extends Command
         }
 
         $this->ensureDirectory(dirname($path));
-        file_put_contents($path, $this->content($className, $id));
+        file_put_contents($path, StubResolver::resolve('theme.php.stub', [
+            '{{ class }}' => $className,
+            '{{ id }}'    => $id,
+        ]));
 
         $this->info("Theme created → app/Themes/{$className}.php");
         $this->line("Register it in AppServiceProvider:");
@@ -34,50 +38,6 @@ final class MakeThemeCommand extends Command
         $this->line("  'theme' => '{$id}'");
 
         return self::SUCCESS;
-    }
-
-    private function content(string $className, string $id): string
-    {
-        return <<<PHP
-        <?php
-
-        declare(strict_types=1);
-
-        namespace App\Themes;
-
-        use AlpDevelop\LivewirePanel\Themes\AbstractTheme;
-
-        final class {$className} extends AbstractTheme
-        {
-            public function id(): string
-            {
-                return '{$id}';
-            }
-
-            public function cssAssets(): array
-            {
-                return [
-                    // 'https://cdn.example.com/my-theme.css',
-                ];
-            }
-
-            public function jsAssets(): array
-            {
-                return [
-                    // 'https://cdn.example.com/my-theme.js',
-                ];
-            }
-
-            public function componentClasses(): array
-            {
-                return [
-                    'button' => ['root' => 'btn btn-primary'],
-                    'card'   => ['root' => 'card', 'body' => 'card-body', 'title' => 'card-title'],
-                    'alert'  => ['root' => 'alert'],
-                ];
-            }
-        }
-        PHP;
     }
 
     private function ensureDirectory(string $path): void

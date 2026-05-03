@@ -1,0 +1,18 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Livewire\Modules\{{ class }}\Pages;
+
+use Illuminate\Contracts\View\View;
+use Livewire\Attributes\Layout;
+use Livewire\Component;
+
+#[Layout('panel::layouts.app', ['title' => '{{ class }}'])]
+final class {{ class }}Page extends Component
+{
+    public function render(): View
+    {
+        return view('livewire.modules.{{ kebabName }}.index');
+    }
+}

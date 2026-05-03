@@ -1,0 +1,16 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Livewire\Widgets;
+
+use AlpDevelop\LivewirePanel\Widgets\AbstractWidget;
+use Illuminate\Contracts\View\View;
+
+final class {{ class }} extends AbstractWidget
+{
+    public function render(): View
+    {
+        return view('livewire.widgets.{{ viewName }}');
+    }
+}

@@ -14,7 +14,8 @@ final class MakeStyleCommand extends Command
 
     public function handle(): int
     {
-        $name     = Str::slug((string) $this->argument('name'));
+        $raw      = $this->argument('name');
+        $name     = Str::slug(is_string($raw) ? $raw : '');
         $path     = config_path("laravel-livewire-panel/{$name}.php");
 
         if (file_exists($path)) {
@@ -23,7 +24,7 @@ final class MakeStyleCommand extends Command
         }
 
         $this->ensureDirectory(dirname($path));
-        file_put_contents($path, $this->content($name));
+        file_put_contents($path, $this->content());
 
         $this->info("Style created → config/laravel-livewire-panel/{$name}.php");
         $this->line("Use it in config/laravel-livewire-panel.php:");
@@ -32,7 +33,7 @@ final class MakeStyleCommand extends Command
         return self::SUCCESS;
     }
 
-    private function content(string $name): string
+    private function content(): string
     {
         return <<<PHP
         <?php

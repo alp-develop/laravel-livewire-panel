@@ -1,0 +1,34 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Themes;
+
+use AlpDevelop\LivewirePanel\Themes\AbstractTheme;
+
+final class {{ class }} extends AbstractTheme
+{
+    public function id(): string
+    {
+        return '{{ id }}';
+    }
+
+    public function cssAssets(): array
+    {
+        return [];
+    }
+
+    public function jsAssets(): array
+    {
+        return [];
+    }
+
+    public function componentClasses(): array
+    {
+        return [
+            'button' => ['root' => 'btn btn-primary'],
+            'card'   => ['root' => 'card', 'body' => 'card-body', 'title' => 'card-title'],
+            'alert'  => ['root' => 'alert'],
+        ];
+    }
+}

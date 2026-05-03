@@ -1,0 +1,2 @@
+<x-panel::card :title="$title">
+</x-panel::card>

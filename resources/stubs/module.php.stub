@@ -1,0 +1,45 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Livewire\Modules\{{ class }};
+
+use AlpDevelop\LivewirePanel\Compat\LivewireCompat;
+use AlpDevelop\LivewirePanel\Http\Middleware\PanelAuthMiddleware;
+use AlpDevelop\LivewirePanel\Modules\AbstractModule;
+use AlpDevelop\LivewirePanel\Modules\NavigationItem;
+use App\Livewire\Modules\{{ class }}\Pages\{{ class }}Page;
+use Illuminate\Support\Facades\Route;
+
+final class {{ class }}Module extends AbstractModule
+{
+    public function id(): string
+    {
+        return '{{ snakeName }}';
+    }
+
+    public function routes(): void
+    {
+        $panelId = $this->panelId();
+        $prefix  = $this->prefix();
+
+        Route::middleware(['web', PanelAuthMiddleware::class])
+            ->prefix($prefix . '/{{ snakeName }}')
+            ->name("panel.{$panelId}.{{ snakeName }}.")
+            ->group(function () {
+                LivewireCompat::pageRoute('/', {{ class }}Page::class)->name('index');
+            });
+    }
+
+    public function navigationItems(): array
+    {
+        return [
+            new NavigationItem('{{ class }}', 'panel.' . $this->panelId() . '.{{ snakeName }}.index', 'layer-group'),
+        ];
+    }
+
+    public function permissions(): array
+    {
+        return [];
+    }
+}

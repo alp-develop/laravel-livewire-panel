@@ -14,7 +14,8 @@ final class MakePluginCommand extends Command
 
     public function handle(): int
     {
-        $name      = (string) $this->argument('name');
+        $raw       = $this->argument('name');
+        $name      = is_string($raw) ? $raw : '';
         $className = Str::studly($name);
         $id        = Str::snake($name);
 
@@ -27,36 +28,10 @@ final class MakePluginCommand extends Command
 
         $this->ensureDirectory(dirname($path));
 
-        file_put_contents($path, <<<PHP
-        <?php
-
-        declare(strict_types=1);
-
-        namespace App\Plugins;
-
-        use AlpDevelop\LivewirePanel\Plugins\AbstractPlugin;
-
-        final class {$className}Plugin extends AbstractPlugin
-        {
-            public function id(): string
-            {
-                return '{$id}';
-            }
-
-            public function afterBoot(): void
-            {
-            }
-
-            public function registerNavigation(): array
-            {
-                return [];
-            }
-        }
-        PHP);
-
-        $content = file_get_contents($path);
-        $lines   = array_map(fn (string $l) => ltrim($l), explode("\n", $content));
-        file_put_contents($path, implode("\n", $lines));
+        file_put_contents($path, StubResolver::resolve('plugin.php.stub', [
+            '{{ class }}' => $className,
+            '{{ id }}'    => $id,
+        ]));
 
         $this->info("Plugin {$className}Plugin generated in {$path}");
         $this->line("Register the plugin in your AppServiceProvider:");

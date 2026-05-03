@@ -14,14 +14,15 @@ final class MakeModuleCommand extends Command
 
     public function handle(): int
     {
-        $name      = (string) $this->argument('name');
+        $raw       = $this->argument('name');
+        $name      = is_string($raw) ? $raw : '';
         $className = Str::studly($name);
         $snakeName = Str::snake($name);
         $kebabName = Str::kebab($name);
 
         $this->generateModule($className, $snakeName);
-        $this->generatePage($className, $snakeName, $kebabName);
-        $this->generateView($className, $snakeName, $kebabName);
+        $this->generatePage($className, $kebabName);
+        $this->generateView($className, $kebabName);
 
         $this->info("Module {$className} generated successfully.");
         $this->line("Register the module in your AppServiceProvider:");
@@ -35,101 +36,29 @@ final class MakeModuleCommand extends Command
         $path = app_path("Livewire/Modules/{$className}/{$className}Module.php");
         $this->ensureDirectory(dirname($path));
 
-        file_put_contents($path, <<<PHP
-        <?php
-
-        declare(strict_types=1);
-
-        namespace App\Livewire\Modules\\{$className};
-
-        use AlpDevelop\LivewirePanel\Compat\LivewireCompat;
-        use AlpDevelop\LivewirePanel\Http\Middleware\PanelAuthMiddleware;
-        use AlpDevelop\LivewirePanel\Modules\AbstractModule;
-        use AlpDevelop\LivewirePanel\Modules\NavigationItem;
-        use App\Livewire\Modules\\{$className}\Pages\\{$className}Page;
-        use Illuminate\Support\Facades\Route;
-
-        final class {$className}Module extends AbstractModule
-        {
-            public function id(): string
-            {
-                return '{$snakeName}';
-            }
-
-            public function routes(): void
-            {
-                \$panelId = \$this->panelId();
-                \$prefix  = \$this->prefix();
-
-                Route::middleware(['web', PanelAuthMiddleware::class])
-                    ->prefix(\$prefix . '/{$snakeName}')
-                    ->name("panel.{\$panelId}.{$snakeName}.")
-                    ->group(function () {
-                        LivewireCompat::pageRoute('/', {$className}Page::class)->name('index');
-                    });
-            }
-
-            public function navigationItems(): array
-            {
-                return [
-                    new NavigationItem('{$className}', 'panel.' . \$this->panelId() . '.{$snakeName}.index', 'layer-group'),
-                ];
-            }
-
-            public function permissions(): array
-            {
-                return [];
-            }
-        }
-        PHP);
+        file_put_contents($path, StubResolver::resolve('module.php.stub', [
+            '{{ class }}'     => $className,
+            '{{ snakeName }}' => $snakeName,
+        ]));
     }
 
-    private function generatePage(string $className, string $snakeName, string $kebabName): void
+    private function generatePage(string $className, string $kebabName): void
     {
         $path = app_path("Livewire/Modules/{$className}/Pages/{$className}Page.php");
         $this->ensureDirectory(dirname($path));
 
-        file_put_contents($path, <<<PHP
-        <?php
-
-        declare(strict_types=1);
-
-        namespace App\Livewire\Modules\\{$className}\Pages;
-
-        use Illuminate\Contracts\View\View;
-        use Livewire\Attributes\Layout;
-        use Livewire\Component;
-
-        #[Layout('panel::layouts.app', ['title' => '{$className}'])]
-        final class {$className}Page extends Component
-        {
-            public function render(): View
-            {
-                return view('livewire.modules.{$kebabName}.page');
-            }
-        }
-        PHP);
+        file_put_contents($path, StubResolver::resolve('module.page.php.stub', [
+            '{{ class }}'     => $className,
+            '{{ kebabName }}' => $kebabName,
+        ]));
     }
 
-    private function generateView(string $className, string $snakeName, string $kebabName): void
+    private function generateView(string $className, string $kebabName): void
     {
         $path = resource_path("views/livewire/modules/{$kebabName}/page.blade.php");
         $this->ensureDirectory(dirname($path));
 
-        file_put_contents($path, <<<BLADE
-        <div>
-            <div class="panel-page-header">
-                <h1>{$className}</h1>
-            </div>
-
-            <div class="panel-section-card">
-                <div class="panel-section-header">Content</div>
-                <div class="panel-section-body">
-                    <p style="color:#64748b;font-size:.875rem">Module {$className} generated.</p>
-                </div>
-            </div>
-        </div>
-        BLADE);
+        file_put_contents($path, "<div>\n    <div class=\"panel-page-header\">\n        <h1>{$className}</h1>\n    </div>\n\n    <div class=\"panel-section-card\">\n        <div class=\"panel-section-header\">Content</div>\n        <div class=\"panel-section-body\">\n            <p style=\"color:#64748b;font-size:.875rem\">Module {$className} generated.</p>\n        </div>\n    </div>\n</div>\n");
     }
 
     private function ensureDirectory(string $path): void

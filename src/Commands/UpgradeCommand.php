@@ -16,7 +16,7 @@ final class UpgradeCommand extends Command
         $this->info('Upgrading laravel-livewire-panel...');
 
         $this->callSilent('vendor:publish', [
-            '--provider' => 'AlpDevelop\\LivewirePanel\\LivewirePanelServiceProvider',
+            '--provider' => \AlpDevelop\LivewirePanel\LivewirePanelServiceProvider::class,
             '--tag'      => 'panel-views',
             '--force'    => $this->option('force'),
         ]);

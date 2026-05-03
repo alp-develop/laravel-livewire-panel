@@ -1,0 +1,28 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Panel\Notifications;
+
+use AlpDevelop\LivewirePanel\Notifications\NotificationProviderInterface;
+
+final class {{ class }} implements NotificationProviderInterface
+{
+    public function count(string $panelId): int
+    {
+        return 0;
+    }
+
+    public function items(string $panelId, int $limit = 10): array
+    {
+        return [];
+    }
+
+    public function markAsRead(string $id, string $panelId, int|null $userId = null): void
+    {
+    }
+
+    public function markAllAsRead(string $panelId): void
+    {
+    }
+}
