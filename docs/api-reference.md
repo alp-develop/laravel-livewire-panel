@@ -13,11 +13,12 @@ Public interfaces and main classes reference.
 | Method | Return | Description |
 |--------|--------|-------------|
 | `id()` | `string` | Unique theme identifier |
-| `cssAssets()` | `array` | CSS stylesheet URLs |
-| `jsAssets()` | `array` | JavaScript script URLs |
+| `cssAssets()` | `list<string>` | CSS stylesheet URLs |
+| `jsAssets()` | `list<string>` | JavaScript script URLs |
 | `headHtml(array $styleConfig = [])` | `string` | Extra HTML for `<head>` |
 | `cssVariables(array $styleConfig)` | `string` | Custom CSS variables for the theme |
-| `componentClasses()` | `array` | CSS class map per component |
+| `darkCssVariables(array $styleConfig)` | `string` | CSS variables for dark mode |
+| `componentClasses()` | `array<string, array<string, string>>` | CSS class map per component |
 
 Built-in implementations: `Bootstrap5Theme`, `Bootstrap4Theme`, `TailwindTheme`.
 
@@ -62,8 +63,8 @@ Built-in widgets: `StatsCardWidget`, `ChartWidget`, `RecentTableWidget`.
 | `id()` | `string` | Unique plugin identifier |
 | `beforeBoot()` | `void` | Hook executed before boot |
 | `afterBoot()` | `void` | Hook executed after boot |
-| `registerNavigation()` | `array` | Plugin navigation items |
-| `registerWidgets()` | `array` | Plugin widget classes |
+| `registerNavigation()` | `array<string, list<mixed>>` | Navigation items keyed by panel ID |
+| `registerWidgets()` | `array<string, string>` | Widget classes keyed by alias |
 
 ---
 
@@ -217,6 +218,31 @@ Base module class with default implementations.
 
 ---
 
+### SearchRegistryInterface
+
+`AlpDevelop\LivewirePanel\Search\SearchRegistryInterface`
+
+| Method | Return | Description |
+|--------|--------|-------------|
+| `register(string $panelId, SearchProviderInterface $provider)` | `void` | Register a provider for a panel |
+| `forPanel(string $panelId)` | `list<SearchProviderInterface>` | Providers registered for a panel |
+| `search(string $query, string $panelId)` | `list<array<string, mixed>>` | Execute search across all providers (memoized) |
+| `clearCache()` | `void` | Clear the memoized search cache |
+
+---
+
+### NotificationRegistryInterface
+
+`AlpDevelop\LivewirePanel\Notifications\NotificationRegistryInterface`
+
+| Method | Return | Description |
+|--------|--------|-------------|
+| `register(string $panelId, NotificationProviderInterface $provider)` | `void` | Register a provider for a panel |
+| `has(string $panelId)` | `bool` | Check if a provider is registered |
+| `resolve(string $panelId)` | `NotificationProviderInterface\|null` | Resolve the provider for a panel |
+
+---
+
 ## Registries
 
 | Class | Description |
@@ -226,7 +252,8 @@ Base module class with default implementations.
 | `WidgetRegistry` | Available widgets registry |
 | `PluginRegistry` | Plugins registry |
 | `NavigationRegistry` | Navigation items registry |
-| `SearchRegistry` | Search providers registry |
+| `SearchRegistry` | Search providers registry (implements `SearchRegistryInterface`) |
+| `NotificationRegistry` | Notification providers registry (implements `NotificationRegistryInterface`) |
 
 ---
 

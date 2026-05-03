@@ -8,9 +8,11 @@ This document covers the security features built into the package.
 
 ### Rate limiting
 
-Login attempts are rate-limited to **5 attempts per 60 seconds** per IP address. After exceeding the limit, the user sees a throttle message with the remaining cooldown time.
+Login attempts are rate-limited to **5 attempts per 60 seconds** per IP address and per target email. After exceeding the limit, the user sees a throttle message with the remaining cooldown time.
 
-The rate limiter uses Laravel's `RateLimiter` facade with the key `panel-login:{ip}`. Successful logins clear the counter.
+The rate limiter uses Laravel's `RateLimiter` facade with the key `panel-login:{sha1(email)}:{ip}`. This composite key ensures that brute-force attacks targeting a specific account are throttled even when launched from multiple IP addresses. Successful logins clear the counter.
+
+The forgot password form uses a separate key `panel-forgot-password:{ip}` with the same 5-attempt limit.
 
 ### Session regeneration
 
@@ -19,6 +21,10 @@ Sessions are regenerated after every successful login to prevent session fixatio
 ### Password validation
 
 The Users page enforces strong passwords with `Password::min(8)->mixedCase()->numbers()`.
+
+### User enumeration protection
+
+The forgot password flow returns the same message regardless of whether the requested email exists. When the email is not found, a random `usleep` delay (80–150 ms) is applied to equalize response time and prevent timing-based user enumeration.
 
 ---
 
@@ -37,6 +43,13 @@ Permission and role checks are delegated to the configured gate driver per panel
 ### Panel access control
 
 `PanelAccessRegistry` allows defining per-panel access callbacks. If a user fails the check, the middleware redirects them to an allowed panel or back to login. A `PanelAccessDenied` event is dispatched on denial.
+
+> **Important for multi-panel setups**: If no access callback is registered for a panel, any authenticated user can access that panel. In multi-panel deployments always register an explicit access check for every panel:
+>
+> ```php
+> $registry->for('admin', fn ($user) => $user->hasRole('admin'));
+> $registry->for('operator', fn ($user) => $user->hasRole('operator'));
+> ```
 
 ### Guard switching
 
@@ -100,7 +113,9 @@ All critical actions dispatch Laravel events with IP address and timestamp for a
 For production deployments:
 
 1. Always configure a gate driver (`'spatie'` or `'laravel'`) instead of `null`
-2. Use `PanelAccessRegistry` to restrict which users can access each panel
+2. Use `PanelAccessRegistry` to restrict which users can access each panel — especially in multi-panel setups
 3. Listen to `LoginAttempted` and `PanelAccessDenied` events for security monitoring
 4. Use HTTPS to protect session cookies and credentials
 5. Configure proper CORS headers if panels are accessed from different domains
+6. Add SRI hashes to CDN entries in your panel config (see [Widgets & CDN](configuration.md))
+7. Configure a `Content-Security-Policy` header that allows the CDN domains your panels use

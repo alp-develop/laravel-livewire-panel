@@ -216,6 +216,23 @@ Each entry in `cdn` is identified by an alias and has three fields:
 | `js` | array | JS URLs to inject before `</body>` with `data-navigate-once` (loaded once during SPA session) |
 | `routes` | array | URL paths where the asset is loaded. Empty array = load on all routes in the panel |
 
+Each URL in `css` and `js` can be either a plain string or an array with `url` and `integrity` for [Subresource Integrity](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity) verification:
+
+```php
+// Plain string (no SRI check)
+'js' => ['https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js'],
+
+// Array with SRI hash (recommended for production)
+'js' => [
+    [
+        'url'       => 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
+        'integrity' => 'sha384-<hash>',
+    ],
+],
+```
+
+When `integrity` is set, the rendered `<script>` or `<link>` tag includes `integrity="..."` and `crossorigin="anonymous"`. SRI hashes can be generated at [srihash.org](https://www.srihash.org/) or obtained from the CDN provider.
+
 The `@panelCdnLibraries` Blade directive is injected automatically in the panel layout. You do not need to add it manually.
 
 All CDN and theme scripts are rendered with the `data-navigate-once` attribute. During Livewire SPA navigation (`wire:navigate`), scripts execute only on first encounter and remain in memory for the rest of the session.

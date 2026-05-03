@@ -124,7 +124,9 @@ See [Installation](docs/installation.md) for the full interactive menu, modules 
 - **Gate authorization** -- PanelGate with Spatie, Laravel Gate or custom drivers.
 - **Password reset** -- Full forgot-password -> email -> reset-password flow out of the box. Customizable notification class and email template via `panel:make-component forgot-password-notification`.
 - **Audit events** -- 8 event classes for login, logout, registration, CRUD operations and access denial. See [Events](docs/events.md).
-- **Security hardening** -- Rate limiting on login (5/60s), CSS injection prevention, SQL wildcard sanitization, `#[Locked]` on Livewire properties. See [Security](docs/security.md).
+- **Security hardening** -- Rate limiting on login (5/60s), CSS injection prevention, SQL wildcard sanitization, `#[Locked]` on Livewire properties, locale whitelist in `LocaleController`. See [Security](docs/security.md).
+- **Performance** -- ETag + HTTP 304 on asset serving, memoization in `PanelGate`/`PanelRenderer`/`CdnPluginResolver`, O(1) route lookups via `buildRouteMap()`, identical query caching in `PanelSearch`, Octane-safe `scoped()` bindings.
+- **Extensibility** -- `CdnManagerInterface`, `ThemeInterface`, `ModuleInterface`, `WidgetInterface`, `NotificationProviderInterface`, `SearchProviderInterface` — all injectable and replaceable via the container.
 - **SPA performance** -- CDN and theme scripts use `data-navigate-once` (load once, stay in memory). Configurable favicon. Page transitions trigger after Livewire hydration.
 - **Reusable components** -- `<x-panel::locale-selector />`, `<x-panel::dark-mode-toggle />`, `<x-panel::alert />`, `<x-panel::button />`, `<x-panel::card />`, `<x-panel::icon />`, `<x-panel::portal />`.
 

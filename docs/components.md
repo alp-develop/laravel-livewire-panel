@@ -14,6 +14,7 @@ Each panel config has a `components` key. Set any key to a class name to replace
     'forgot-password-notification' => null,    // built-in PanelForgotPasswordNotification
     'sidebar'                      => null,    // built-in Sidebar
     'navbar'                       => null,    // built-in Navbar
+    'not-found'                    => null,    // built-in NotFoundComponent
 ],
 ```
 
@@ -31,6 +32,7 @@ php artisan panel:make-component reset-password   --panel=admin
 php artisan panel:make-component forgot-password-notification --panel=admin
 php artisan panel:make-component sidebar          --panel=admin
 php artisan panel:make-component navbar           --panel=admin
+php artisan panel:make-component not-found        --panel=admin
 ```
 
 Each command generates:
@@ -297,6 +299,72 @@ final class AdminNavbar extends AbstractNavbar
 
 ---
 
+## Custom 404 Not Found
+
+Every panel automatically registers a wildcard route that catches any URL not matched by other routes and renders a branded 404 page.
+
+### Generate
+
+```bash
+php artisan panel:make-component not-found --panel=admin
+```
+
+This generates:
+- `app/Livewire/AdminNotFound.php` — Livewire full-page component
+- `resources/views/livewire/admin-not-found.blade.php` — Blade view
+
+### Generated class
+
+```php
+// app/Livewire/AdminNotFound.php
+namespace App\Livewire;
+
+use AlpDevelop\LivewirePanel\Modules\Errors\Http\Livewire\AbstractNotFoundComponent;
+use Illuminate\Contracts\View\View;
+use Livewire\Attributes\Layout;
+
+#[Layout('panel::layouts.app', ['title' => '404 Not Found'])]
+final class AdminNotFound extends AbstractNotFoundComponent
+{
+    public function render(): View
+    {
+        return view('livewire.admin-not-found');
+    }
+}
+```
+
+`AbstractNotFoundComponent` provides:
+- `$panelId` (`#[Locked]`) — resolved in `mount()` from the current request
+
+### Generated view
+
+```blade
+<div style="display:flex;flex-direction:column;align-items:center;...">
+    <div style="font-size:6rem;...;color:var(--panel-primary,#4f46e5)">404</div>
+    <h1>{{ __('panel::messages.not_found_title') }}</h1>
+    <p>{{ __('panel::messages.not_found_message') }}</p>
+    <a href="{{ panel_route($panelId, 'home') }}">
+        <x-panel::icon name="arrow-left" size="14" />
+        {{ __('panel::messages.back_to_home') }}
+    </a>
+</div>
+```
+
+The view uses `var(--panel-primary)` and other panel CSS variables for consistent theming across all themes.
+
+### Registering
+
+```php
+// config/laravel-livewire-panel.php
+'components' => [
+    'not-found' => \App\Livewire\AdminNotFound::class,
+],
+```
+
+When `null` (default), the built-in `NotFoundComponent` is used.
+
+---
+
 ## Custom User Popover Header
 
 The user popover header is the section inside the user dropdown that shows the avatar, name and email. You can replace it with a full Livewire component to add custom data, queries, or any PHP logic.
@@ -431,3 +499,4 @@ Using the panel CSS classes (`panel-sidebar`, `panel-nav-item`, etc.) gives you 
 | Forgot password | `AlpDevelop\LivewirePanel\Modules\Auth\Http\Livewire\AbstractForgotPasswordComponent` |
 | Sidebar | `AlpDevelop\LivewirePanel\View\Livewire\AbstractSidebar` |
 | Navbar | `AlpDevelop\LivewirePanel\View\Livewire\AbstractNavbar` |
+| 404 Not Found | `AlpDevelop\LivewirePanel\Modules\Errors\Http\Livewire\AbstractNotFoundComponent` |

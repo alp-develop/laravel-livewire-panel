@@ -71,9 +71,10 @@ final class AppNotificationProvider implements NotificationProviderInterface
         ])->toArray();
     }
 
-    public function markAsRead(string $id, string $panelId): void
+    public function markAsRead(string $id, string $panelId, int|null $userId = null): void
     {
-        auth()->user()?->notifications()->where('id', $id)->first()?->markAsRead();
+        $user = $userId !== null ? \App\Models\User::find($userId) : auth()->user();
+        $user?->notifications()->where('id', $id)->first()?->markAsRead();
     }
 
     public function markAllAsRead(string $panelId): void
