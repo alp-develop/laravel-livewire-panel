@@ -87,4 +87,37 @@ final class SearchRegistryTest extends TestCase
 
         $this->assertCount(2, $this->registry->forPanel('admin'));
     }
+
+    public function test_search_memoizes_results(): void
+    {
+        $provider = $this->createMock(SearchProviderInterface::class);
+        $provider->method('category')->willReturn('Navigation');
+        $provider->method('icon')->willReturn('fa-compass');
+        $provider->expects($this->once())
+            ->method('search')
+            ->willReturn([['label' => 'Dashboard', 'url' => '/admin']]);
+
+        $this->registry->register('admin', $provider);
+
+        $first  = $this->registry->search('dash', 'admin');
+        $second = $this->registry->search('dash', 'admin');
+
+        $this->assertSame($first, $second);
+    }
+
+    public function test_clear_cache_forces_re_evaluation(): void
+    {
+        $provider = $this->createMock(SearchProviderInterface::class);
+        $provider->method('category')->willReturn('Navigation');
+        $provider->method('icon')->willReturn('fa-compass');
+        $provider->expects($this->exactly(2))
+            ->method('search')
+            ->willReturn([['label' => 'Dashboard', 'url' => '/admin']]);
+
+        $this->registry->register('admin', $provider);
+
+        $this->registry->search('dash', 'admin');
+        $this->registry->clearCache();
+        $this->registry->search('dash', 'admin');
+    }
 }

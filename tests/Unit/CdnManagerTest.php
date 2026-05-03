@@ -49,8 +49,8 @@ final class CdnManagerTest extends TestCase
 
         $result = $this->manager->resolveForPanel($config, '/dashboard');
 
-        $this->assertSame(['chart.css'], $result['css']);
-        $this->assertSame(['chart.js'], $result['js']);
+        $this->assertSame([['url' => 'chart.css', 'integrity' => '']], $result['css']);
+        $this->assertSame([['url' => 'chart.js', 'integrity' => '']], $result['js']);
     }
 
     public function test_resolve_for_panel_filters_by_route(): void
@@ -69,7 +69,7 @@ final class CdnManagerTest extends TestCase
         $this->assertSame([], $result['css']);
 
         $result = $this->manager->resolveForPanel($config, '/admin/posts/create');
-        $this->assertSame(['editor.css'], $result['css']);
+        $this->assertSame([['url' => 'editor.css', 'integrity' => '']], $result['css']);
     }
 
     public function test_active_aliases_returns_matching(): void

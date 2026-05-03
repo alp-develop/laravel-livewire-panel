@@ -234,6 +234,39 @@ final class ArtisanCommandTest extends PanelTestCase
         $this->assertStringContainsString('return [', file_get_contents($path));
     }
 
+    public function test_make_notification_generates_file(): void
+    {
+        $this->artisan('panel:make-notification', ['name' => 'TestAlerts'])
+            ->assertSuccessful();
+
+        $classPath = app_path('Panel/Notifications/TestAlerts.php');
+        $this->generatedPaths[] = $classPath;
+
+        $this->assertFileExists($classPath);
+
+        $content = file_get_contents($classPath);
+        $this->assertStringContainsString('namespace App\\Panel\\Notifications', $content);
+        $this->assertStringContainsString('NotificationProviderInterface', $content);
+        $this->assertStringContainsString('declare(strict_types=1)', $content);
+    }
+
+    public function test_make_notification_fails_if_exists(): void
+    {
+        $this->artisan('panel:make-notification', ['name' => 'DupeNotification'])
+            ->assertSuccessful();
+
+        $this->generatedPaths[] = app_path('Panel/Notifications/DupeNotification.php');
+
+        $this->artisan('panel:make-notification', ['name' => 'DupeNotification'])
+            ->assertFailed();
+    }
+
+    public function test_list_panels_command_runs(): void
+    {
+        $this->artisan('panel:list')
+            ->assertSuccessful();
+    }
+
     private function isDirEmpty(string $dir): bool
     {
         $files = scandir($dir);

@@ -56,8 +56,8 @@ final class CdnPluginResolverTest extends TestCase
 
         $result = $this->resolver->resolveAssets($config, '/');
 
-        $this->assertSame(['a.css', 'b.css'], $result['css']);
-        $this->assertSame(['a.js'], $result['js']);
+        $this->assertSame([['url' => 'a.css', 'integrity' => ''], ['url' => 'b.css', 'integrity' => '']], $result['css']);
+        $this->assertSame([['url' => 'a.js', 'integrity' => '']], $result['js']);
     }
 
     public function test_resolve_assets_skips_non_matching_routes(): void
@@ -113,7 +113,7 @@ final class CdnPluginResolverTest extends TestCase
 
         $result = $this->resolver->resolveAssets($config, '/');
 
-        $this->assertSame(['a.css', 'b.css'], $result['css']);
-        $this->assertSame(['b.js'], $result['js']);
+        $this->assertSame([['url' => 'a.css', 'integrity' => ''], ['url' => 'b.css', 'integrity' => '']], $result['css']);
+        $this->assertSame([['url' => 'b.js', 'integrity' => '']], $result['js']);
     }
 }

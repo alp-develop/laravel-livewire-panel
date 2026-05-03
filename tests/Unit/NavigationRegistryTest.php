@@ -94,4 +94,53 @@ final class NavigationRegistryTest extends TestCase
         $this->assertCount(1, $this->registry->forPanel('admin'));
         $this->assertCount(1, $this->registry->forPanel('operator'));
     }
+
+    public function test_build_route_map_for_direct_items(): void
+    {
+        $this->registry->add('admin', new NavigationItem(label: 'Dashboard', route: 'panel.admin.home'));
+        $this->registry->add('admin', new NavigationItem(label: 'Settings', route: 'panel.admin.settings'));
+
+        $map = $this->registry->buildRouteMap('admin');
+
+        $this->assertSame('Dashboard', $map['panel.admin.home']);
+        $this->assertSame('Settings', $map['panel.admin.settings']);
+    }
+
+    public function test_build_route_map_for_groups(): void
+    {
+        $children = [
+            new NavigationItem(label: 'List', route: 'panel.admin.users'),
+            new NavigationItem(label: 'Create', route: 'panel.admin.users.create'),
+        ];
+        $this->registry->addGroup('admin', new NavigationGroup(label: 'Users', children: $children));
+
+        $map = $this->registry->buildRouteMap('admin');
+
+        $this->assertSame('List', $map['panel.admin.users']);
+        $this->assertSame('Create', $map['panel.admin.users.create']);
+    }
+
+    public function test_build_route_map_is_memoized(): void
+    {
+        $this->registry->add('admin', new NavigationItem(label: 'Home', route: 'panel.admin.home'));
+
+        $first  = $this->registry->buildRouteMap('admin');
+        $second = $this->registry->buildRouteMap('admin');
+
+        $this->assertSame($first, $second);
+    }
+
+    public function test_build_route_map_skips_empty_routes(): void
+    {
+        $this->registry->add('admin', new NavigationItem(label: 'Home', route: ''));
+
+        $map = $this->registry->buildRouteMap('admin');
+
+        $this->assertSame([], $map);
+    }
+
+    public function test_build_route_map_returns_empty_for_unknown_panel(): void
+    {
+        $this->assertSame([], $this->registry->buildRouteMap('nonexistent'));
+    }
 }
