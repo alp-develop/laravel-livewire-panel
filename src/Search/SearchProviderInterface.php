@@ -10,5 +10,6 @@ interface SearchProviderInterface
 
     public function icon(): string;
 
+    /** @return list<array<string, mixed>> */
     public function search(string $query, string $panelId): array;
 }

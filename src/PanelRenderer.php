@@ -6,6 +6,18 @@ namespace AlpDevelop\LivewirePanel;
 
 use AlpDevelop\LivewirePanel\Cdn\CdnPluginResolver;
 
+/**
+ * Generates HTML for panel CSS variables, assets, and CDN tags.
+ *
+ * All heavy calls (cssVars, layoutConfig, cssAssets, jsAssets) are memoized
+ * per panel + request to avoid redundant computation across multiple renders.
+ *
+ * Static design rationale: methods are called from Blade directives (@panelCssVars,
+ * @panelCssAssets, @panelJsAssets) where no instance is available. The static cache
+ * is process-scoped; use clearCache() when testing or under Octane between requests.
+ *
+ * @see clearCache()
+ */
 final class PanelRenderer
 {
     /** @var array<string, array<string, mixed>> */
@@ -59,14 +71,21 @@ final class PanelRenderer
 
     public static function cssAssets(string $layout = ''): string
     {
+        $panelId  = self::resolvePanelId();
+        $path     = request()->path();
+        $cacheKey = $panelId . '|' . $layout . '|' . $path;
+
+        if (isset(self::$cache['cssAssets'][$cacheKey])) {
+            return self::$cache['cssAssets'][$cacheKey];
+        }
+
         $kernel    = app(PanelKernel::class);
         $resolver  = app(CdnPluginResolver::class);
-        $panelId   = self::resolvePanelId();
         $panelCfg  = $kernel->config()->get($panelId);
         $styleId   = $panelCfg['customization'] ?? 'default';
         $styleCfg  = $kernel->styleConfig()->has($styleId) ? $kernel->styleConfig()->get($styleId) : [];
         $theme     = $kernel->themes()->resolve($panelCfg['theme'] ?? 'bootstrap5');
-        $cdnAssets = $resolver->resolveAssets($panelCfg, request()->path());
+        $cdnAssets = $resolver->resolveAssets($panelCfg, $path);
 
         $output = '';
 
@@ -81,8 +100,10 @@ final class PanelRenderer
             $output .= '<link rel="stylesheet" href="' . e($url) . '">' . "\n";
         }
 
-        foreach ($cdnAssets['css'] as $url) {
-            $output .= '<link rel="stylesheet" href="' . e($url) . '">' . "\n";
+        foreach ($cdnAssets['css'] as $entry) {
+            $url    = e($entry['url']);
+            $sri    = $entry['integrity'] !== '' ? ' integrity="' . e($entry['integrity']) . '" crossorigin="anonymous"' : '';
+            $output .= '<link rel="stylesheet" href="' . $url . '"' . $sri . '>' . "\n";
         }
 
         $output .= $theme->headHtml($styleCfg);
@@ -95,17 +116,26 @@ final class PanelRenderer
 
         $output .= '<script src="' . e(self::assetUrl('js/panel-init.js')) . '"></script>' . "\n";
 
+        self::$cache['cssAssets'][$cacheKey] = $output;
+
         return $output;
     }
 
     public static function jsAssets(string $layout = ''): string
     {
+        $panelId  = self::resolvePanelId();
+        $path     = request()->path();
+        $cacheKey = $panelId . '|' . $layout . '|' . $path;
+
+        if (isset(self::$cache['jsAssets'][$cacheKey])) {
+            return self::$cache['jsAssets'][$cacheKey];
+        }
+
         $kernel    = app(PanelKernel::class);
         $resolver  = app(CdnPluginResolver::class);
-        $panelId   = self::resolvePanelId();
         $panelCfg  = $kernel->config()->get($panelId);
         $theme     = $kernel->themes()->resolve($panelCfg['theme'] ?? 'bootstrap5');
-        $cdnAssets = $resolver->resolveAssets($panelCfg, request()->path());
+        $cdnAssets = $resolver->resolveAssets($panelCfg, $path);
 
         $output = '';
 
@@ -113,17 +143,22 @@ final class PanelRenderer
             $output .= '<script src="' . e($url) . '" data-navigate-once></script>' . "\n";
         }
 
-        foreach ($cdnAssets['js'] as $url) {
-            $output .= '<script src="' . e($url) . '" data-navigate-once></script>' . "\n";
+        foreach ($cdnAssets['js'] as $entry) {
+            $url    = e($entry['url']);
+            $sri    = $entry['integrity'] !== '' ? ' integrity="' . e($entry['integrity']) . '" crossorigin="anonymous"' : '';
+            $output .= '<script src="' . $url . '"' . $sri . ' data-navigate-once></script>' . "\n";
         }
 
         if ($layout === 'app') {
             $output .= '<script src="' . e(self::assetUrl('js/panel-app.js')) . '" data-navigate-once></script>' . "\n";
         }
 
+        self::$cache['jsAssets'][$cacheKey] = $output;
+
         return $output;
     }
 
+    /** @return array<string, mixed> */
     public static function layoutConfig(): array
     {
         $panelId = self::resolvePanelId();
@@ -161,6 +196,7 @@ final class PanelRenderer
             'sidebar_persist_state'      => $styleCfg['sidebar']['persist_state'] ?? true,
             'sidebar_icons_only_when_collapsed' => $styleCfg['sidebar']['icons_only_when_collapsed'] ?? true,
             'sidebar_overlay_on_mobile'  => $styleCfg['sidebar']['overlay_on_mobile'] ?? true,
+            'sidebar_hover_expand'       => $styleCfg['sidebar']['hover_expand'] ?? false,
             'sidebar_logo'       => $styleCfg['sidebar']['logo'] ?? null,
             'sidebar_logo_height' => $styleCfg['sidebar']['logo_height'] ?? '40px',
             'sidebar_logo_width'  => $styleCfg['sidebar']['logo_width'] ?? 'auto',
@@ -189,6 +225,7 @@ final class PanelRenderer
             'data-sidebar-initial'  => $layout['sidebar_initial_state'] ?? 'expanded',
             'data-sidebar-persist'  => ($layout['sidebar_persist_state'] ?? true) ? 'true' : 'false',
             'data-sidebar-collapsible' => ($layout['sidebar_collapsible'] ?? true) ? 'true' : 'false',
+            'data-sidebar-hover-expand' => ($layout['sidebar_hover_expand'] ?? false) ? 'true' : 'false',
             'data-page-transition'  => $layout['page_transition'] ?? '',
             'data-dark-classes'     => implode(' ', $layout['dark_mode_classes'] ?? []),
             'data-dark-dispatch'    => $layout['dark_mode_dispatch'] ?? '',
@@ -202,5 +239,10 @@ final class PanelRenderer
         }
 
         return implode(' ', $parts);
+    }
+
+    public static function clearCache(): void
+    {
+        self::$cache = [];
     }
 }

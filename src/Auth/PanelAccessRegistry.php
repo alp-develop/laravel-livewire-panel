@@ -6,6 +6,7 @@ namespace AlpDevelop\LivewirePanel\Auth;
 
 final class PanelAccessRegistry
 {
+    /** @var array<string, callable(mixed): bool> */
     private array $checks = [];
 
     public function for(string $panelId, callable $check): void

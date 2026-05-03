@@ -8,7 +8,8 @@ use AlpDevelop\LivewirePanel\Modules\NavigationItem;
 
 final class NavigationGroup
 {
-    /** @param NavigationItem[] $children */
+    /** @param NavigationItem[] $children
+     *  @param string|list<string> $roles */
     public function __construct(
         public readonly string $label,
         public readonly array $children = [],

@@ -22,6 +22,7 @@ final class NavigationSearchProvider implements SearchProviderInterface
         return 'layer-group';
     }
 
+    /** @return list<array<string, mixed>> */
     public function search(string $query, string $panelId): array
     {
         $navRegistry = app(NavigationRegistry::class);
@@ -31,8 +32,8 @@ final class NavigationSearchProvider implements SearchProviderInterface
 
         foreach ($items as $item) {
             if ($item instanceof NavigationGroup) {
-                $canSeeGroup = (empty($item->permission) || $gate->allows($item->permission))
-                    && (empty($item->roles) || $gate->hasRole($item->roles));
+                $canSeeGroup = ($item->permission === '' || $item->permission === '0' || $gate->allows($item->permission))
+                    && (in_array($item->roles, ['', '0', []], true) || $gate->hasRole($item->roles));
 
                 if (!$canSeeGroup) {
                     continue;
@@ -58,16 +59,17 @@ final class NavigationSearchProvider implements SearchProviderInterface
 
         $q = mb_strtolower(trim($query));
 
-        return array_values(array_filter($results, function (array $r) use ($q) {
-            return str_contains(mb_strtolower($r['label']), $q)
-                || str_contains(mb_strtolower($r['description'] ?? ''), $q);
-        }));
+        $filtered = array_values(array_filter($results, fn(array $r) => str_contains(mb_strtolower((string) $r['label']), $q)
+            || str_contains(mb_strtolower($r['description'] ?? ''), $q)));
+
+        return array_slice($filtered, 0, 15);
     }
 
+    /** @return array<string, mixed>|null */
     private function resolveItem(NavigationItem $item, PanelGate $gate): ?array
     {
-        $canSee = (empty($item->permission) || $gate->allows($item->permission))
-            && (empty($item->roles) || $gate->hasRole($item->roles));
+        $canSee = ($item->permission === '' || $item->permission === '0' || $gate->allows($item->permission))
+            && (in_array($item->roles, ['', '0', []], true) || $gate->hasRole($item->roles));
 
         if (!$canSee || !Route::has($item->route)) {
             return null;

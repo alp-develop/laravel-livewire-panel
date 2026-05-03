@@ -6,6 +6,7 @@ namespace AlpDevelop\LivewirePanel\Modules;
 
 final class NavigationItem
 {
+    /** @param string|list<string> $roles */
     public function __construct(
         public readonly string $label,
         public readonly string $route,
