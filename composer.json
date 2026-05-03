@@ -38,7 +38,10 @@
         "laravel": {
             "providers": [
                 "AlpDevelop\\LivewirePanel\\LivewirePanelServiceProvider"
-            ]
+            ],
+            "aliases": {
+                "Panel": "AlpDevelop\\LivewirePanel\\Facades\\Panel"
+            }
         }
     },
     "scripts": {

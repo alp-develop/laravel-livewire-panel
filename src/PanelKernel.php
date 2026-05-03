@@ -69,6 +69,7 @@ final class PanelKernel
 
             foreach ($this->moduleRegistry->forPanel($panelConfig['id'] ?? '') as $moduleClass) {
                 $module = new $moduleClass($panelConfig);
+                assert($module instanceof AbstractModule);
                 $module->routes();
 
                 if ($navigationMode === 'modules') {
@@ -90,9 +91,7 @@ final class PanelKernel
     private function bootPluginNavigation(): void
     {
         foreach ($this->pluginRegistry->allInstances() as $plugin) {
-            $items = $plugin->registerNavigation();
-
-            foreach ($items as $panelId => $navItems) {
+            foreach ($plugin->registerNavigation() as $panelId => $navItems) {
                 foreach ($navItems as $item) {
                     $this->navigationRegistry->add($panelId, $item);
                 }
@@ -111,6 +110,7 @@ final class PanelKernel
                 }
 
                 $module = new $moduleClass($panelConfig);
+                assert($module instanceof AbstractModule);
                 $module->publicRoutes();
                 $bootedModules[$moduleClass] = true;
             }
@@ -122,7 +122,7 @@ final class PanelKernel
             return;
         }
 
-        Route::middleware('web')->group(function () use ($pages) {
+        Route::middleware('web')->group(function () use ($pages): void {
             foreach ($pages as $page) {
                 $middleware = $page['middleware'] ?? [];
                 $route     = $page['route'] ?? null;
@@ -182,6 +182,11 @@ final class PanelKernel
     public function plugins(): PluginRegistry
     {
         return $this->pluginRegistry;
+    }
+
+    public function widgets(): WidgetRegistry
+    {
+        return $this->widgetRegistry;
     }
 
     public function isBooted(): bool
