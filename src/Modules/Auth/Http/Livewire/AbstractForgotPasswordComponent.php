@@ -43,17 +43,27 @@ abstract class AbstractForgotPasswordComponent extends Component
 
         RateLimiter::hit($throttleKey, 60);
 
-        $broker = Password::broker();
+        $resolver    = app(PanelResolver::class);
+        $panelConfig = $resolver->resolveById($this->panelId);
+        $guard       = (string) ($panelConfig['guard'] ?? 'web');
+        $provider    = (string) config("auth.guards.{$guard}.provider", 'users');
+        $brokerName  = null;
+
+        foreach ((array) config('auth.passwords', []) as $name => $cfg) {
+            if (($cfg['provider'] ?? null) === $provider) {
+                $brokerName = (string) $name;
+                break;
+            }
+        }
+
         /** @var \Illuminate\Auth\Passwords\PasswordBroker $broker */
-        $user = $broker->getUser(['email' => $this->email]);
+        $broker = Password::broker($brokerName);
+        $user   = $broker->getUser(['email' => $this->email]);
 
         if ($user !== null) {
-            /** @var \Illuminate\Auth\Passwords\PasswordBroker $broker */
-            $token = $broker->createToken($user);
-
-            $resolver    = app(PanelResolver::class);
-            $panelConfig = $resolver->resolveById($this->panelId);
-            $expire      = (int) config('auth.passwords.' . config('auth.defaults.passwords') . '.expire', 60);
+            $token      = $broker->createToken($user);
+            $brokerKey  = $brokerName ?? (string) config('auth.defaults.passwords');
+            $expire     = (int) config("auth.passwords.{$brokerKey}.expire", 60);
 
             $resetUrl = route("panel.{$this->panelId}.auth.reset-password", [
                 'token' => $token,
@@ -62,11 +72,15 @@ abstract class AbstractForgotPasswordComponent extends Component
 
             $notificationClass = $panelConfig['components']['forgot-password-notification'] ?? null;
 
-            if ($notificationClass !== null && class_exists($notificationClass)) {
-                $user->notify(new $notificationClass($token, $resetUrl, $expire));
-            } else {
-                $user->notify(new PanelForgotPasswordNotification($token, $resetUrl, $expire));
+            if (method_exists($user, 'notify')) {
+                if ($notificationClass !== null && class_exists($notificationClass)) {
+                    $user->notify(new $notificationClass($token, $resetUrl, $expire));
+                } else {
+                    $user->notify(new PanelForgotPasswordNotification($token, $resetUrl, $expire));
+                }
             }
+        } else {
+            usleep(random_int(80000, 150000));
         }
 
         $this->sent = true;

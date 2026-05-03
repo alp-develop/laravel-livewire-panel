@@ -71,6 +71,8 @@ abstract class AbstractSidebar extends Component
         return 'panel::livewire.sidebar';
     }
 
+    /** @param array<string, mixed> $panelConfig
+     *  @return list<array<string, mixed>> */
     private function resolveUserMenu(array $panelConfig): array
     {
         $mode = $panelConfig['mode'] ?? 'config';
@@ -82,6 +84,7 @@ abstract class AbstractSidebar extends Component
 
             foreach ($moduleRegistry->forPanel($panelId) as $moduleClass) {
                 $module = new $moduleClass($panelConfig);
+                assert($module instanceof \AlpDevelop\LivewirePanel\Modules\AbstractModule);
                 foreach ($module->userMenuItems() as $moduleItem) {
                     $items[] = $moduleItem;
                 }

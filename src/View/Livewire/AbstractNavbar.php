@@ -103,27 +103,17 @@ abstract class AbstractNavbar extends Component
     {
         $currentRoute = request()->route()?->getName() ?? '';
 
-        $registry = app(NavigationRegistry::class);
-        $items    = $registry->forPanel($this->panelId);
-
-        foreach ($items as $item) {
-            if ($item instanceof NavigationGroup) {
-                foreach ($item->children as $child) {
-                    if ($child->route === $currentRoute) {
-                        return __($child->label);
-                    }
-                }
-                continue;
-            }
-
-            if ($item->route === $currentRoute) {
-                return __($item->label);
-            }
+        if ($currentRoute === '') {
+            return __($this->title ?: 'Panel');
         }
 
-        return __($this->title ?: 'Panel');
+        $map = app(NavigationRegistry::class)->buildRouteMap($this->panelId);
+
+        return isset($map[$currentRoute]) ? __($map[$currentRoute]) : __($this->title ?: 'Panel');
     }
 
+    /** @param array<string, mixed> $panelConfig
+     *  @return list<array<string, mixed>> */
     private function resolveUserMenu(array $panelConfig): array
     {
         $mode = $panelConfig['mode'] ?? 'config';
@@ -135,6 +125,7 @@ abstract class AbstractNavbar extends Component
 
             foreach ($moduleRegistry->forPanel($panelId) as $moduleClass) {
                 $module = new $moduleClass($panelConfig);
+                assert($module instanceof \AlpDevelop\LivewirePanel\Modules\AbstractModule);
                 foreach ($module->userMenuItems() as $moduleItem) {
                     $items[] = $moduleItem;
                 }
@@ -175,7 +166,7 @@ abstract class AbstractNavbar extends Component
      * @return array<int, string> */
     private function filterNavbarComponents(array $components): array
     {
-        if (empty($components)) {
+        if ($components === []) {
             return [];
         }
 

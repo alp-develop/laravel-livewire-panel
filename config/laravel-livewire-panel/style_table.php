@@ -12,6 +12,7 @@ return [
         'icons_only_when_collapsed' => true,
         'persist_state'             => true,
         'overlay_on_mobile'         => true,
+        'hover_expand'              => false,
         'logo_height'               => '40px',
         'logo_width'                => 'auto',
         'logo_class'                => '',

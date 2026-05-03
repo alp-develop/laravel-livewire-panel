@@ -116,7 +116,14 @@
             applyPanelState();
             if (html.getAttribute('data-page-transition') === 'fade') {
                 var content = document.querySelector('.panel-content');
-                if (content) content.classList.add('panel-page-entering');
+                if (content) {
+                    content.classList.add('panel-page-entering');
+                    requestAnimationFrame(function () {
+                        requestAnimationFrame(function () {
+                            content.classList.remove('panel-page-entering');
+                        });
+                    });
+                }
             }
         });
     });
@@ -131,9 +138,27 @@
         }
     }
 
+    function initSidebarHoverExpand() {
+        if (html.getAttribute('data-sidebar-hover-expand') !== 'true') return;
+        var sidebar = document.querySelector('.panel-sidebar');
+        if (!sidebar) return;
+        var inner = sidebar.querySelector('.panel-sidebar-inner');
+        if (!inner) return;
+        sidebar.addEventListener('mouseenter', function () {
+            if (html.getAttribute('data-sidebar-collapsed') === 'true') {
+                inner.classList.add('panel-sidebar--hover-open');
+            }
+        });
+        sidebar.addEventListener('mouseleave', function () {
+            inner.classList.remove('panel-sidebar--hover-open');
+        });
+    }
+
     initBackToTop();
+    initSidebarHoverExpand();
     document.addEventListener('livewire:navigated', function () {
         initBackToTop();
+        initSidebarHoverExpand();
         if (html.getAttribute('data-page-transition') === 'fade') {
             var content = document.querySelector('.panel-content');
             if (content) content.classList.remove('panel-page-entering');

@@ -38,8 +38,20 @@ abstract class AbstractResetPasswordComponent extends Component
         $this->token   = $token;
         $this->email   = (string) request()->query('email', '');
 
+        $panelConfig = $resolver->resolveById($this->panelId);
+        $guard       = (string) ($panelConfig['guard'] ?? 'web');
+        $provider    = (string) config("auth.guards.{$guard}.provider", 'users');
+        $brokerName  = null;
+
+        foreach ((array) config('auth.passwords', []) as $name => $cfg) {
+            if (($cfg['provider'] ?? null) === $provider) {
+                $brokerName = (string) $name;
+                break;
+            }
+        }
+
         /** @var \Illuminate\Auth\Passwords\PasswordBroker $broker */
-        $broker = Password::broker();
+        $broker = Password::broker($brokerName);
         $user   = $broker->getUser(['email' => $this->email]);
 
         if ($user === null || !$broker->tokenExists($user, $this->token)) {
@@ -62,14 +74,27 @@ abstract class AbstractResetPasswordComponent extends Component
 
         RateLimiter::hit($throttleKey, 60);
 
-        $status = Password::broker()->reset(
+        $resolver    = app(PanelResolver::class);
+        $panelConfig = $resolver->resolveById($this->panelId);
+        $guard       = (string) ($panelConfig['guard'] ?? 'web');
+        $provider    = (string) config("auth.guards.{$guard}.provider", 'users');
+        $brokerName  = null;
+
+        foreach ((array) config('auth.passwords', []) as $name => $cfg) {
+            if (($cfg['provider'] ?? null) === $provider) {
+                $brokerName = (string) $name;
+                break;
+            }
+        }
+
+        $status = Password::broker($brokerName)->reset(
             [
                 'email'                 => $this->email,
                 'password'              => $this->password,
                 'password_confirmation' => $this->password_confirmation,
                 'token'                 => $this->token,
             ],
-            function ($user, string $password) {
+            function ($user, string $password): void {
                 $user->forceFill([
                     'password'       => Hash::make($password),
                     'remember_token' => Str::random(60),
@@ -78,6 +103,9 @@ abstract class AbstractResetPasswordComponent extends Component
                 event(new PasswordReset($user));
             }
         );
+
+        $this->password             = '';
+        $this->password_confirmation = '';
 
         if ($status === Password::PASSWORD_RESET) {
             session()->flash('status', __('panel::messages.password_reset_success'));

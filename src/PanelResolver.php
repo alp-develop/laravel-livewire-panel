@@ -14,19 +14,26 @@ final class PanelResolver
 
     public function resolveFromRequest(Request $request): string
     {
-        $path = trim($request->getPathInfo(), '/');
+        $path      = trim($request->getPathInfo(), '/');
+        $rootPanel = null;
 
         foreach ($this->config->all() as $id => $panel) {
             $prefix = trim((string) ($panel['prefix'] ?? $id), '/');
+
+            if ($prefix === '') {
+                $rootPanel = $id;
+                continue;
+            }
 
             if ($path === $prefix || str_starts_with($path, $prefix . '/')) {
                 return $id;
             }
         }
 
-        return $this->config->default();
+        return $rootPanel ?? $this->config->default();
     }
 
+    /** @return array<string, mixed> */
     public function resolveById(string $id): array
     {
         return $this->config->get($id);
