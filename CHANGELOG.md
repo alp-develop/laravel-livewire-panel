@@ -4,6 +4,80 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] - 2026-05-02
+
+### Added
+
+- `PanelManager` — central access point to all registries (themes, modules, plugins, widgets, search, notifications) via the service container. Exposes `currentId()`, `for()`, `route()`, `kernel()`, `clearCaches()`.
+- `Panel` Facade — Laravel auto-discovered facade (`Panel::`) with full `@method` PHPDoc for IDE autocompletion. Registered in `composer.json` extra.laravel.aliases.
+- `PanelManager::clearCaches()` — flushes `SearchRegistry` cache and `PanelRenderer` static cache in a single call.
+- `PanelRateLimitMiddleware` — configurable rate limiting per panel and per action (login, register, search). Registered as `panel.throttle` middleware alias.
+- `rate_limiting` config section per panel with defaults: `login` (5 attempts/min), `register` (3 attempts/min), `search` (30 attempts/min).
+- `SearchRegistry` cache memoization — results are memoized by `panelId:query` key to avoid redundant provider calls on repeated identical queries.
+- `SearchRegistryInterface::clearCache()` — added to the interface contract and implemented in `SearchRegistry`.
+- `PanelRenderer::clearCache()` — static method to flush the memoized render cache.
+- `PanelKernel::widgets()` — exposes the `WidgetRegistry` instance.
+- `NavigationRegistry::buildRouteMap()` — O(1) route-to-title map, memoized per panel, invalidated on `add()`/`addGroup()` calls.
+- `docs/facade.md` — full documentation for the Panel Facade with method table, usage examples, and global helpers reference.
+- `docs/api-reference.md` — added `SearchRegistryInterface`, `NotificationRegistryInterface` tables; added `darkCssVariables()` to `ThemeInterface` table; corrected return types for `PluginInterface::registerNavigation()` and `registerWidgets()`.
+- Publishable stubs via `vendor:publish --tag=panel-stubs` for customizing code generation templates (widget, module, page, plugin, theme, notification).
+- Tests: `SearchRegistry` cache memoization and `clearCache()` re-evaluation.
+- Tests: `PanelManager` and `Panel` Facade resolution from container.
+- Tests: `PanelRateLimitMiddleware` allows within limit and blocks after max attempts.
+- Tests: `NavigationRegistry::buildRouteMap()` for direct items, groups, memoization, empty routes, and unknown panels.
+- Tests: `PanelPortalBuilder::route()`, `home()`, parameters, and `to_panel()` helper.
+- Tests: `panel_component()` helper resolution, default component, empty key, and config override via `PanelHelpersWithOverrideTest`.
+- Tests: `panel:make-notification` and `panel:list` artisan commands.
+- CI: coverage job threshold raised from 55% to 75%.
+
+
+
+- **404 Not Found page**: Built-in wildcard route per panel renders a branded 404 component when no other route matches. Supports full customization via `components.not-found` config key. Run `php artisan panel:make-component not-found --panel=admin` to generate a custom component.
+- `AbstractNotFoundComponent` — base class for custom 404 components. Exposes `$panelId` property (`#[Locked]`) populated in `mount()`.
+- `panel:make-component not-found` — new type for the make-component command. Generates `App\Livewire\{Panel}NotFound` class and corresponding Blade view.
+- Translation keys `not_found_title`, `not_found_message`, `back_to_home` added to all 10 supported languages.
+- `sidebar.hover_expand` config option (default `false`). When `true` and the sidebar is collapsed, hovering over it expands it to full width floating over the content (desktop only, no effect on mobile).
+- CDN SRI (Subresource Integrity) support: each CDN entry in config now accepts the array format `['url' => '...', 'integrity' => 'sha384-...']` alongside the plain string format. When `integrity` is set, the rendered `<link>` and `<script>` tags include `integrity` and `crossorigin="anonymous"` attributes.
+- `NotificationProviderInterface::markAsRead()` now accepts an optional `int|null $userId` parameter for ownership validation. Existing implementations are backward compatible.
+- Performance: ETag + HTTP 304 caching on asset serving via `AssetController`
+- Performance: Instance memoization in `PanelGate` for driver instances per panel
+- Performance: `cssAssets()` and `jsAssets()` memoized per `panelId|layout|path` in `PanelRenderer`
+- Performance: `buildRouteMap()` in `NavigationRegistry` for O(1) route-to-title lookups
+- Performance: Identical query guard and result caching in `PanelSearch`
+- Performance: Instance cache for notification count and items in `AbstractPanelNotifications`
+- Performance: Memoization in `CdnPluginResolver` keyed by CDN config hash and current path
+- Performance: `NavigationSearchProvider` limits results to 15 items
+- Security: Octane-safe `scoped()` bindings for `PanelContext` and `PanelGate`
+- Security: `LocaleController` validates locale against panel whitelist before setting session
+- `CdnManagerInterface` — formal interface for `CdnManager` with typed signatures
+- PHPDoc on `AbstractModule`, `AbstractWidget`, and `AbstractTheme`
+- Tests: `PanelForgotPasswordTest` covering submit, notification dispatch, rate limiting, and validation
+- Tests: `PanelResetPasswordTest` covering invalid token redirect, token population, validation, and rate limiting
+- Tests: `DashboardPageTest` covering render with and without configured stats
+
+### Changed
+
+- `PanelGate` now receives `PanelContext` via constructor injection
+- `CdnManager` resolves `CdnPluginResolver` from container to reuse memoized instance
+- `AbstractLoginComponent` and `AbstractRegisterComponent` use `$this->panelId` instead of re-resolving from request
+
+### Fixed
+
+- **ForgotPassword / ResetPassword**: Broker is now resolved from the panel's configured guard provider instead of the default broker, fixing silent email delivery failures when using non-default guards. `$expire` also uses the resolved broker.
+- Page transition fade: `panel-page-entering` class could remain permanently on `.panel-content` if `livewire:navigated` never fired. Now uses double `requestAnimationFrame` inside `onSwap`.
+- Sidebar hover-expand background was transparent on the overflow area. Fixed with `position: absolute` on `.panel-sidebar-inner` scoped to `@media (min-width: 769px)`.
+- PHPStan level 8: resolved `missingType.iterableValue` in `CdnPluginResolver::normalizeEntry()` and added typed `@return` to `CdnManager` and `CdnPluginResolver::resolveAssets()`.
+
+### Security
+
+- **Password exposure**: Login, Register, and Reset Password components now clear the plaintext password from Livewire component state immediately after use, preventing it from appearing in the `livewire/update` JSON payload.
+- **Register type check**: Replaced `assert()` with an explicit `instanceof` check. `assert()` is a no-op when `zend.assertions=-1` (standard production config), so the previous guard never ran in production.
+- **InstallCommand**: Regex validation on panel ID prompt prevents PHP code injection in the generated config.
+- **Login brute-force**: Rate limiter key includes `sha1(email) + IP` to prevent credential stuffing from rotating IPs.
+- **PanelSearch**: `updatedQuery()` truncates search input to 100 characters before processing.
+- **ForgotPassword timing**: Random `usleep` (80–150 ms) on unknown email to prevent user enumeration via timing side-channel.
+- **Notifications IDOR**: `markAsRead()` passes the authenticated user's ID for ownership validation.
+
 ## [1.0.2] - 2026-04-12
 
 ### Added
