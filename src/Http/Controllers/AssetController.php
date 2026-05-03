@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace AlpDevelop\LivewirePanel\Http\Controllers;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 final class AssetController
 {
-    public function __invoke(string $file): Response
+    public function __invoke(Request $request, string $file): Response
     {
         $basePath = realpath(dirname(__DIR__, 3) . '/resources/assets');
 
@@ -29,6 +30,14 @@ final class AssetController
             default => 'text/plain',
         };
 
+        $etag = '"' . md5(filemtime($filePath) . ':' . filesize($filePath)) . '"';
+
+        if ($request->header('If-None-Match') === $etag) {
+            return response('', 304)
+                ->header('ETag', $etag)
+                ->header('Cache-Control', 'public, max-age=604800');
+        }
+
         $content = file_get_contents($filePath);
 
         if ($content === false) {
@@ -37,6 +46,7 @@ final class AssetController
 
         return response($content)
             ->header('Content-Type', $contentType)
-            ->header('Cache-Control', 'public, max-age=604800');
+            ->header('Cache-Control', 'public, max-age=604800')
+            ->header('ETag', $etag);
     }
 }
