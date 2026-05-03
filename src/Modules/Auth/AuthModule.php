@@ -36,7 +36,7 @@ final class AuthModule extends AbstractModule
         Route::middleware(['web'])
             ->prefix($prefix)
             ->name("panel.{$panelId}.")
-            ->group(function () use ($panelId, $guard, $registrationEnabled, $loginClass, $registerClass, $forgotPasswordClass, $resetPasswordClass) {
+            ->group(function () use ($panelId, $guard, $registrationEnabled, $loginClass, $registerClass, $forgotPasswordClass, $resetPasswordClass): void {
                 LivewireCompat::pageRoute('/login', $loginClass)->name('auth.login');
 
                 LivewireCompat::pageRoute('/forgot-password', $forgotPasswordClass)

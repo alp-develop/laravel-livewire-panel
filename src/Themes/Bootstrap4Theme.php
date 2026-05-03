@@ -11,6 +11,7 @@ final class Bootstrap4Theme extends AbstractTheme
         return 'bootstrap4';
     }
 
+    /** @return list<string> */
     public function cssAssets(): array
     {
         return [
@@ -18,6 +19,7 @@ final class Bootstrap4Theme extends AbstractTheme
         ];
     }
 
+    /** @return list<string> */
     public function jsAssets(): array
     {
         return [
@@ -26,6 +28,7 @@ final class Bootstrap4Theme extends AbstractTheme
         ];
     }
 
+    /** @param array<string, mixed> $styleConfig */
     public function headHtml(array $styleConfig = []): string
     {
         $c = $this->resolveThemeColors($styleConfig);
@@ -100,6 +103,7 @@ HTML;
         return $html;
     }
 
+    /** @return array<string, array<string, string>> */
     public function componentClasses(): array
     {
         return [

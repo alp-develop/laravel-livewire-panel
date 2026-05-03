@@ -15,7 +15,7 @@ final class LivewireCompat
 
     public static function pageRoute(string $uri, string $component): \Illuminate\Routing\Route
     {
-        if (LivewireVersion::isV4OrAbove() && method_exists(Route::class, 'livewire')) {
+        if (LivewireVersion::isV4OrAbove()) {
             return Route::livewire($uri, $component);
         }
 

@@ -8,7 +8,9 @@ use AlpDevelop\LivewirePanel\Exceptions\PanelNotFoundException;
 
 final class ThemeRegistry
 {
+    /** @var array<string, string> */
     private array $themes    = [];
+    /** @var array<string, ThemeInterface> */
     private array $instances = [];
 
     public function register(string $id, string $class): void
@@ -23,7 +25,9 @@ final class ThemeRegistry
         }
 
         if (!isset($this->instances[$id])) {
-            $this->instances[$id] = new ($this->themes[$id])();
+            $instance = new ($this->themes[$id])();
+            assert($instance instanceof ThemeInterface);
+            $this->instances[$id] = $instance;
         }
 
         return $this->instances[$id];
@@ -39,6 +43,7 @@ final class ThemeRegistry
         return $this->themes[$id] ?? '';
     }
 
+    /** @return array<string, string> */
     public function all(): array
     {
         return $this->themes;

@@ -13,6 +13,7 @@ final class NullGateDriver implements GateDriverInterface
         return false;
     }
 
+    /** @param string|list<string> $roles */
     public function hasRole(string|array $roles, mixed $user = null): bool
     {
         return false;

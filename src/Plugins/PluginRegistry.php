@@ -6,9 +6,10 @@ namespace AlpDevelop\LivewirePanel\Plugins;
 
 final class PluginRegistry
 {
+    /** @var list<string> */
     private array $classes = [];
 
-    /** @var PluginInterface[] */
+    /** @var list<PluginInterface> */
     private array $instances = [];
 
     public function register(string $class): void
@@ -33,11 +34,13 @@ final class PluginRegistry
         }
     }
 
+    /** @return list<PluginInterface> */
     public function allInstances(): array
     {
         return $this->instances;
     }
 
+    /** @return list<string> */
     public function all(): array
     {
         return $this->classes;

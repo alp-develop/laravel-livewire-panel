@@ -12,6 +12,7 @@ final class Portal extends Component
     public function __construct(
         public readonly string $panel,
         public readonly string $route = 'home',
+        /** @var array<string, mixed> */
         public readonly array  $params = [],
     ) {}
 

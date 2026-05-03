@@ -153,7 +153,7 @@ final class UsersPage extends Component
         $searchTerm = SearchQuerySanitizer::sanitize($this->search);
 
         $users = $this->userModel()::query()
-            ->when($searchTerm !== '', function ($q) use ($searchTerm) {
+            ->when($searchTerm !== '', function ($q) use ($searchTerm): void {
                 $q->where('name', 'like', "%{$searchTerm}%")
                     ->orWhere('email', 'like', "%{$searchTerm}%");
             })

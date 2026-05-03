@@ -11,6 +11,7 @@ final class Bootstrap5Theme extends AbstractTheme
         return 'bootstrap5';
     }
 
+    /** @return list<string> */
     public function cssAssets(): array
     {
         return [
@@ -18,6 +19,7 @@ final class Bootstrap5Theme extends AbstractTheme
         ];
     }
 
+    /** @return list<string> */
     public function jsAssets(): array
     {
         return [
@@ -25,6 +27,7 @@ final class Bootstrap5Theme extends AbstractTheme
         ];
     }
 
+    /** @param array<string, mixed> $styleConfig */
     public function cssVariables(array $styleConfig): string
     {
         $base = parent::cssVariables($styleConfig);
@@ -53,6 +56,7 @@ final class Bootstrap5Theme extends AbstractTheme
         return $base . "\n    " . implode(";\n    ", $bs) . ';';
     }
 
+    /** @param array<string, mixed> $styleConfig */
     public function headHtml(array $styleConfig = []): string
     {
         $c = $this->resolveThemeColors($styleConfig);
@@ -131,6 +135,7 @@ final class Bootstrap5Theme extends AbstractTheme
             . '</style>';
     }
 
+    /** @return array<string, array<string, string>> */
     public function componentClasses(): array
     {
         return [

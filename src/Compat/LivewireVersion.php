@@ -15,7 +15,7 @@ final class LivewireVersion
         }
 
         if (defined('\\Livewire\\Livewire::VERSION')) {
-            self::$major = (int) explode('.', \Livewire\Livewire::VERSION)[0];
+            self::$major = (int) explode('.', (string) \Livewire\Livewire::VERSION)[0];
         } elseif (class_exists(\Livewire\Livewire::class)) {
             $version = \Composer\InstalledVersions::getPrettyVersion('livewire/livewire') ?? '3.0.0';
             self::$major = (int) explode('.', $version)[0];
@@ -28,12 +28,12 @@ final class LivewireVersion
 
     public static function isV3(): bool
     {
-        return static::major() === 3;
+        return self::major() === 3;
     }
 
     public static function isV4OrAbove(): bool
     {
-        return static::major() >= 4;
+        return self::major() >= 4;
     }
 
     public static function reset(): void

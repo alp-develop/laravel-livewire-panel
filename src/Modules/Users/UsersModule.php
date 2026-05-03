@@ -26,11 +26,12 @@ final class UsersModule extends AbstractModule
         Route::middleware(['web', PanelAuthMiddleware::class])
             ->prefix($prefix . '/users')
             ->name("panel.{$panelId}.users.")
-            ->group(function () {
+            ->group(function (): void {
                 LivewireCompat::pageRoute('/', UsersPage::class)->name('index');
             });
     }
 
+    /** @return list<\AlpDevelop\LivewirePanel\Modules\NavigationItem> */
     public function navigationItems(): array
     {
         return [
@@ -44,6 +45,7 @@ final class UsersModule extends AbstractModule
         ];
     }
 
+    /** @return list<string> */
     public function permissions(): array
     {
         return ['users.view', 'users.create', 'users.edit', 'users.delete'];

@@ -11,16 +11,19 @@ final class TailwindTheme extends AbstractTheme
         return 'tailwind';
     }
 
+    /** @return list<string> */
     public function cssAssets(): array
     {
         return [];
     }
 
+    /** @return list<string> */
     public function jsAssets(): array
     {
         return [];
     }
 
+    /** @param array<string, mixed> $styleConfig */
     public function headHtml(array $styleConfig = []): string
     {
         $c = $this->resolveThemeColors($styleConfig);
@@ -69,6 +72,7 @@ final class TailwindTheme extends AbstractTheme
         return $html;
     }
 
+    /** @return array<string, array<string, string>> */
     public function componentClasses(): array
     {
         return [

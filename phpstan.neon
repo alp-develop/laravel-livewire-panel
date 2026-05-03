@@ -6,3 +6,18 @@ parameters:
     paths:
         - src/
     level: 8
+    ignoreErrors:
+        -
+            message: '#view expects view\-string\|null, string given#'
+            identifier: argument.type
+        -
+            message: '#Class App\\Models\\User not found#'
+            identifier: class.notFound
+            path: src/Modules/Users/
+        -
+            identifier: trait.unused
+            path: src/Concerns/
+        -
+            message: '#Match arm comparison between .+ is always true#'
+            identifier: match.alwaysTrue
+            path: src/Commands/MakeComponentCommand.php

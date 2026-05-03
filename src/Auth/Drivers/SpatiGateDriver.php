@@ -10,7 +10,7 @@ final class SpatiGateDriver implements GateDriverInterface
 {
     public function check(string $permission, mixed $user = null): bool
     {
-        $user = $user ?? auth()->user();
+        $user ??= auth()->user();
 
         if ($user === null) {
             return false;
@@ -19,9 +19,10 @@ final class SpatiGateDriver implements GateDriverInterface
         return $user->hasPermissionTo($permission);
     }
 
+    /** @param string|list<string> $roles */
     public function hasRole(string|array $roles, mixed $user = null): bool
     {
-        $user = $user ?? auth()->user();
+        $user ??= auth()->user();
 
         if ($user === null) {
             return false;

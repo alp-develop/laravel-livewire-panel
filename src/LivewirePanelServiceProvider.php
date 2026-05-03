@@ -7,6 +7,7 @@ namespace AlpDevelop\LivewirePanel;
 use AlpDevelop\LivewirePanel\Auth\PanelAccessRegistry;
 use AlpDevelop\LivewirePanel\Auth\PanelGate;
 use AlpDevelop\LivewirePanel\Cdn\CdnManager;
+use AlpDevelop\LivewirePanel\Cdn\CdnManagerInterface;
 use AlpDevelop\LivewirePanel\Cdn\CdnPluginResolver;
 use AlpDevelop\LivewirePanel\Commands\InstallCommand;
 use AlpDevelop\LivewirePanel\Commands\MakeComponentCommand;
@@ -16,10 +17,13 @@ use AlpDevelop\LivewirePanel\Commands\MakePluginCommand;
 use AlpDevelop\LivewirePanel\Commands\MakeStyleCommand;
 use AlpDevelop\LivewirePanel\Commands\MakeThemeCommand;
 use AlpDevelop\LivewirePanel\Commands\MakeWidgetCommand;
+use AlpDevelop\LivewirePanel\Commands\MakeNotificationCommand;
+use AlpDevelop\LivewirePanel\Commands\ListPanelsCommand;
 use AlpDevelop\LivewirePanel\Commands\UpgradeCommand;
 use AlpDevelop\LivewirePanel\Compat\LivewireCompat;
 use AlpDevelop\LivewirePanel\Config\PanelConfig;
 use AlpDevelop\LivewirePanel\Config\PanelStyleConfig;
+use AlpDevelop\LivewirePanel\PanelManager;
 use AlpDevelop\LivewirePanel\Http\Controllers\AssetController;
 use AlpDevelop\LivewirePanel\Http\Controllers\LocaleController;
 use AlpDevelop\LivewirePanel\Http\Middleware\PanelAuthMiddleware;
@@ -33,7 +37,9 @@ use AlpDevelop\LivewirePanel\Modules\ModuleRegistry;
 use AlpDevelop\LivewirePanel\Navigation\NavigationRegistry;
 use AlpDevelop\LivewirePanel\Plugins\PluginRegistry;
 use AlpDevelop\LivewirePanel\Notifications\NotificationRegistry;
+use AlpDevelop\LivewirePanel\Notifications\NotificationRegistryInterface;
 use AlpDevelop\LivewirePanel\Search\SearchRegistry;
+use AlpDevelop\LivewirePanel\Search\SearchRegistryInterface;
 use AlpDevelop\LivewirePanel\Themes\ThemeRegistry;
 use AlpDevelop\LivewirePanel\View\Components\Alert;
 use AlpDevelop\LivewirePanel\View\Components\Button;
@@ -64,44 +70,52 @@ final class LivewirePanelServiceProvider extends ServiceProvider
         $this->app->singleton(PluginRegistry::class);
         $this->app->singleton(CdnPluginResolver::class);
         $this->app->singleton(CdnManager::class);
+        $this->app->singleton(CdnManagerInterface::class, fn ($app) => $app->make(CdnManager::class));
         $this->app->singleton(NavigationRegistry::class);
         $this->app->singleton(NotificationRegistry::class);
+        $this->app->singleton(NotificationRegistryInterface::class, fn ($app) => $app->make(NotificationRegistry::class));
         $this->app->singleton(SearchRegistry::class);
+        $this->app->singleton(SearchRegistryInterface::class, fn ($app) => $app->make(SearchRegistry::class));
         $this->app->singleton(WidgetRegistry::class);
-        $this->app->singleton(PanelContext::class);
+        $this->app->scoped(PanelContext::class);
         $this->app->singleton(PanelAccessRegistry::class);
 
-        $this->app->singleton(PanelConfig::class, function ($app) {
-            return new PanelConfig($app['config']->get('laravel-livewire-panel', []));
-        });
+        $this->app->singleton(PanelConfig::class, fn($app) => new PanelConfig($app['config']->get('laravel-livewire-panel', [])));
 
-        $this->app->singleton(PanelStyleConfig::class, function ($app) {
+        $this->app->singleton(PanelStyleConfig::class, function ($app): \AlpDevelop\LivewirePanel\Config\PanelStyleConfig {
             $styleConfig = new PanelStyleConfig();
             $styleConfig->loadFromDirectory(config_path('laravel-livewire-panel'));
 
             return $styleConfig;
         });
 
-        $this->app->singleton(PanelGate::class, function ($app) {
-            return new PanelGate($app->make(PanelResolver::class));
-        });
+        $this->app->scoped(PanelGate::class, fn($app) => new PanelGate(
+            $app->make(PanelResolver::class),
+            $app->make(PanelContext::class),
+        ));
 
-        $this->app->singleton(PanelResolver::class, function ($app) {
-            return new PanelResolver($app->make(PanelConfig::class));
-        });
+        $this->app->singleton(PanelResolver::class, fn($app) => new PanelResolver($app->make(PanelConfig::class)));
 
-        $this->app->singleton(PanelKernel::class, function ($app) {
-            return new PanelKernel(
-                $app->make(PanelConfig::class),
-                $app->make(PanelStyleConfig::class),
-                $app->make(ThemeRegistry::class),
-                $app->make(ModuleRegistry::class),
-                $app->make(PluginRegistry::class),
-                $app->make(NavigationRegistry::class),
-                $app->make(SearchRegistry::class),
-                $app->make(WidgetRegistry::class),
-            );
-        });
+        $this->app->singleton(PanelKernel::class, fn($app) => new PanelKernel(
+            $app->make(PanelConfig::class),
+            $app->make(PanelStyleConfig::class),
+            $app->make(ThemeRegistry::class),
+            $app->make(ModuleRegistry::class),
+            $app->make(PluginRegistry::class),
+            $app->make(NavigationRegistry::class),
+            $app->make(SearchRegistry::class),
+            $app->make(WidgetRegistry::class),
+        ));
+
+        $this->app->singleton(PanelManager::class, fn($app) => new PanelManager(
+            $app->make(PanelContext::class),
+            $app->make(PanelResolver::class),
+            $app->make(PanelKernel::class),
+            $app->make(SearchRegistryInterface::class),
+            $app->make(NotificationRegistryInterface::class),
+        ));
+
+        $this->app->alias(PanelManager::class, 'panel');
     }
 
     public function boot(): void
@@ -125,6 +139,10 @@ final class LivewirePanelServiceProvider extends ServiceProvider
             __DIR__ . '/../resources/lang' => $this->app->langPath('vendor/panel'),
         ], 'panel-lang');
 
+        $this->publishes([
+            __DIR__ . '/../resources/stubs' => base_path('stubs/panel'),
+        ], 'panel-stubs');
+
         Blade::componentNamespace('AlpDevelop\\LivewirePanel\\View\\Components', 'panel');
 
         $this->loadViewComponentsAs('panel', [
@@ -140,6 +158,7 @@ final class LivewirePanelServiceProvider extends ServiceProvider
 
         $router = $this->app->make(Router::class);
         $router->aliasMiddleware('panel.auth', PanelAuthMiddleware::class);
+        $router->aliasMiddleware('panel.throttle', \AlpDevelop\LivewirePanel\Http\Middleware\PanelRateLimitMiddleware::class);
 
         $kernel = $this->app->make(\Illuminate\Contracts\Http\Kernel::class);
         $kernel->appendMiddlewareToGroup('web', SetPanelLocale::class);
@@ -176,6 +195,8 @@ final class LivewirePanelServiceProvider extends ServiceProvider
             $this->commands([
                 InstallCommand::class,
                 MakeWidgetCommand::class,
+                MakeNotificationCommand::class,
+                ListPanelsCommand::class,
                 MakeModuleCommand::class,
                 MakePageCommand::class,
                 MakePluginCommand::class,
@@ -188,22 +209,48 @@ final class LivewirePanelServiceProvider extends ServiceProvider
 
         $kernel = $this->app->make(PanelKernel::class);
         $kernel->boot();
+
+        $this->app->make(\Illuminate\Contracts\Debug\ExceptionHandler::class)
+            ->renderable(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, \Illuminate\Http\Request $request): null|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response {
+                if ($request->expectsJson()) {
+                    return null;
+                }
+
+                try {
+                    /** @var PanelResolver $resolver */
+                    $resolver    = app(PanelResolver::class);
+                    $panelId     = $resolver->resolveFromRequest($request);
+                    $panelConfig = $resolver->resolveById($panelId);
+                } catch (\Throwable) {
+                    return null;
+                }
+
+                $prefix = trim((string) ($panelConfig['prefix'] ?? ''), '/');
+                $path   = trim($request->getPathInfo(), '/');
+
+                if ($prefix !== '' && $path !== $prefix && !str_starts_with($path, $prefix . '/')) {
+                    return null;
+                }
+
+                app(PanelContext::class)->set($panelId);
+
+                return response(view('panel::errors.not-found-page', ['panelId' => $panelId]), 404);
+            });
     }
 
     private function registerBladeDirectives(): void
     {
-        Blade::directive('panelCssVars', fn () => '<?php echo \AlpDevelop\LivewirePanel\PanelRenderer::cssVars(); ?>');
+        Blade::directive('panelCssVars', fn (): string => '<?php echo \AlpDevelop\LivewirePanel\PanelRenderer::cssVars(); ?>');
 
-        Blade::directive('panelCssAssets', fn ($expression) => "<?php echo \\AlpDevelop\\LivewirePanel\\PanelRenderer::cssAssets({$expression}); ?>");
+        Blade::directive('panelCssAssets', fn ($expression): string => "<?php echo \\AlpDevelop\\LivewirePanel\\PanelRenderer::cssAssets({$expression}); ?>");
 
-        Blade::directive('panelJsAssets', fn ($expression) => "<?php echo \\AlpDevelop\\LivewirePanel\\PanelRenderer::jsAssets({$expression}); ?>");
+        Blade::directive('panelJsAssets', fn ($expression): string => "<?php echo \\AlpDevelop\\LivewirePanel\\PanelRenderer::jsAssets({$expression}); ?>");
 
-        Blade::directive('panelLayoutConfig', fn () => '<?php $__panelLayout = \AlpDevelop\LivewirePanel\PanelRenderer::layoutConfig(); ?>');
+        Blade::directive('panelLayoutConfig', fn (): string => '<?php $__panelLayout = \AlpDevelop\LivewirePanel\PanelRenderer::layoutConfig(); ?>');
 
-        Blade::directive('panelHtmlAttributes', fn () => '<?php echo \AlpDevelop\LivewirePanel\PanelRenderer::htmlAttributes(); ?>');
+        Blade::directive('panelHtmlAttributes', fn (): string => '<?php echo \AlpDevelop\LivewirePanel\PanelRenderer::htmlAttributes(); ?>');
 
-        Blade::directive('panelCdnLibraries', function (string $expression) {
-            return <<<'PHP'
+        Blade::directive('panelCdnLibraries', fn(string $expression) => <<<'PHP'
 <?php
 $__panelId     = \AlpDevelop\LivewirePanel\PanelRenderer::resolvePanelId();
 $__panelConfig = app(\AlpDevelop\LivewirePanel\PanelKernel::class)->config()->get($__panelId);
@@ -211,7 +258,6 @@ $__cdnManager  = app(\AlpDevelop\LivewirePanel\Cdn\CdnManager::class);
 echo $__cdnManager->renderCssLinks($__panelConfig, request()->path());
 echo $__cdnManager->renderJsScripts($__panelConfig, request()->path());
 ?>
-PHP;
-        });
+PHP);
     }
 }

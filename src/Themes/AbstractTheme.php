@@ -4,8 +4,18 @@ declare(strict_types=1);
 
 namespace AlpDevelop\LivewirePanel\Themes;
 
+/**
+ * Base implementation for panel themes.
+ *
+ * Extend this class and implement all abstract methods from `ThemeInterface`
+ * to create a custom theme. Use the protected helpers `resolveThemeColors()`,
+ * `resolveDarkColors()`, and `sanitizeCssValue()` when building CSS output.
+ *
+ * @see ThemeInterface
+ */
 abstract class AbstractTheme implements ThemeInterface
 {
+    /** @param array<string, mixed> $styleConfig */
     public function headHtml(array $styleConfig = []): string
     {
         return '';
@@ -16,9 +26,8 @@ abstract class AbstractTheme implements ThemeInterface
         $value = preg_replace('/[;{}\\\\<>"\']/', '', $value) ?? '';
         $value = preg_replace('/expression\s*\(/i', '', $value) ?? '';
         $value = preg_replace('/javascript\s*:/i', '', $value) ?? '';
-        $value = preg_replace('/\\\\[0-9a-fA-F]{1,6}\s?/', '', $value) ?? '';
 
-        return $value;
+        return preg_replace('/\\\\[0-9a-fA-F]{1,6}\s?/', '', $value) ?? '';
     }
 
     /** @param array<string, mixed> $styleConfig
@@ -57,6 +66,7 @@ abstract class AbstractTheme implements ThemeInterface
         ];
     }
 
+    /** @param array<string, mixed> $styleConfig */
     public function cssVariables(array $styleConfig): string
     {
         $theming  = $styleConfig['theming'] ?? [];
@@ -112,6 +122,7 @@ abstract class AbstractTheme implements ThemeInterface
         return '    ' . implode(";\n    ", $vars) . ';';
     }
 
+    /** @param array<string, mixed> $styleConfig */
     public function darkCssVariables(array $styleConfig): string
     {
         $theming  = $styleConfig['theming'] ?? [];

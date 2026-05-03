@@ -11,7 +11,9 @@ use Livewire\Attributes\Lazy;
 final class ChartWidget extends AbstractWidget
 {
     public string $type     = 'line';
+    /** @var list<string> */
     public array  $labels   = [];
+    /** @var list<array<string, mixed>> */
     public array  $datasets = [];
     public int    $height   = 260;
 

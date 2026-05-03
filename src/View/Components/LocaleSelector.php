@@ -12,6 +12,7 @@ use Illuminate\View\Component;
 final class LocaleSelector extends Component
 {
     public bool $enabled;
+    /** @var array<string, string> */
     public array $available;
     public string $current;
 

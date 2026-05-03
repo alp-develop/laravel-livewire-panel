@@ -18,20 +18,19 @@ final class LaravelGateDriver implements GateDriverInterface
         return Gate::allows($permission);
     }
 
+    /** @param string|list<string> $roles */
     public function hasRole(string|array $roles, mixed $user = null): bool
     {
-        $user = $user ?? auth()->user();
+        $user ??= auth()->user();
 
-        if ($user === null) {
-            return false;
-        }
-
-        if (!method_exists($user, 'hasRole')) {
+        if (!is_object($user) || !method_exists($user, 'hasRole')) {
             return true;
         }
 
-        return is_array($roles)
-            ? $user->hasAnyRole($roles)
-            : $user->hasRole($roles);
+        if (is_array($roles) && method_exists($user, 'hasAnyRole')) {
+            return $user->hasAnyRole($roles);
+        }
+
+        return $user->hasRole($roles);
     }
 }

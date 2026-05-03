@@ -10,7 +10,9 @@ use Livewire\Attributes\Lazy;
 #[Lazy]
 final class RecentTableWidget extends AbstractWidget
 {
+    /** @var list<string> */
     public array  $headers   = [];
+    /** @var list<array<string, mixed>> */
     public array  $rows      = [];
     public int    $limit     = 5;
     public string $emptyText = 'Sin datos disponibles';

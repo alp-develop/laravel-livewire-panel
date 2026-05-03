@@ -26,11 +26,12 @@ final class DashboardModule extends AbstractModule
         Route::middleware(['web', PanelAuthMiddleware::class])
             ->prefix($prefix)
             ->name("panel.{$panelId}.")
-            ->group(function () {
+            ->group(function (): void {
                 LivewireCompat::pageRoute('/', DashboardPage::class)->name('home');
             });
     }
 
+    /** @return list<\AlpDevelop\LivewirePanel\Modules\NavigationItem> */
     public function navigationItems(): array
     {
         return [

@@ -8,6 +8,7 @@ use AlpDevelop\LivewirePanel\Exceptions\PanelStyleNotFoundException;
 
 final class PanelStyleConfig
 {
+    /** @var array<string, array<string, mixed>> */
     private array $styles = [];
 
     public function loadFromDirectory(string $path): void
@@ -28,6 +29,7 @@ final class PanelStyleConfig
         }
     }
 
+    /** @return array<string, mixed> */
     public function get(string $id): array
     {
         if (!isset($this->styles[$id])) {
@@ -42,6 +44,7 @@ final class PanelStyleConfig
         return isset($this->styles[$id]);
     }
 
+    /** @return array<string, array<string, mixed>> */
     public function all(): array
     {
         return $this->styles;
