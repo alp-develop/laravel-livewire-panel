@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace AlpDevelop\LivewirePanel\Notifications;
 
-final class NotificationRegistry
+final class NotificationRegistry implements NotificationRegistryInterface
 {
+    /** @var array<string, NotificationProviderInterface> */
     private array $providers = [];
 
     public function register(string $panelId, NotificationProviderInterface $provider): void

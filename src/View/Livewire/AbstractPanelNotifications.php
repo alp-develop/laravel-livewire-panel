@@ -22,6 +22,11 @@ abstract class AbstractPanelNotifications extends Component
     #[Locked]
     public int $pollingInterval = 30;
 
+    private ?int $cachedCount = null;
+
+    /** @var array<int, mixed>|null */
+    private ?array $cachedItems = null;
+
     public function mount(bool $polling = true, int $pollingInterval = 30): void
     {
         $this->polling         = $polling;
@@ -38,8 +43,12 @@ abstract class AbstractPanelNotifications extends Component
         $provider = app(NotificationRegistry::class)->resolve($this->panelId);
 
         if ($provider) {
-            $provider->markAsRead($id, $this->panelId);
+            $userId = auth()->id();
+            $provider->markAsRead($id, $this->panelId, is_int($userId) ? $userId : null);
         }
+
+        $this->cachedCount = null;
+        $this->cachedItems = null;
     }
 
     public function markAllAsRead(): void
@@ -49,19 +58,22 @@ abstract class AbstractPanelNotifications extends Component
         if ($provider) {
             $provider->markAllAsRead($this->panelId);
         }
+
+        $this->cachedCount = null;
+        $this->cachedItems = null;
     }
 
     public function render(): View
     {
-        $registry = app(NotificationRegistry::class);
-        $provider = $registry->resolve($this->panelId);
-
-        $count = $provider ? $provider->count($this->panelId) : 0;
-        $items = $provider ? $provider->items($this->panelId) : [];
+        if ($this->cachedCount === null) {
+            $provider          = app(NotificationRegistry::class)->resolve($this->panelId);
+            $this->cachedCount = $provider ? $provider->count($this->panelId) : 0;
+            $this->cachedItems = $provider ? $provider->items($this->panelId) : [];
+        }
 
         return view($this->view(), [
-            'count'           => $count,
-            'items'           => $items,
+            'count'           => $this->cachedCount,
+            'items'           => $this->cachedItems ?? [],
             'polling'         => $this->polling,
             'pollingInterval' => $this->pollingInterval,
         ]);

@@ -29,9 +29,7 @@ final class InstallCommand extends Command
             $this->configurePanelInteractive();
         }
 
-        $publishViews = !$this->option('defaults')
-            ? confirm('Publish package views for customization?', false)
-            : false;
+        $publishViews = !$this->option('defaults') && confirm('Publish package views for customization?', false);
 
         if ($publishViews) {
             $this->publishViews();
@@ -46,7 +44,7 @@ final class InstallCommand extends Command
     private function publishConfig(): void
     {
         $this->callSilent('vendor:publish', [
-            '--provider' => 'AlpDevelop\\LivewirePanel\\LivewirePanelServiceProvider',
+            '--provider' => \AlpDevelop\LivewirePanel\LivewirePanelServiceProvider::class,
             '--tag'      => 'panel-config',
             '--force'    => $this->option('force'),
         ]);
@@ -57,7 +55,7 @@ final class InstallCommand extends Command
     private function publishStyles(): void
     {
         $this->callSilent('vendor:publish', [
-            '--provider' => 'AlpDevelop\\LivewirePanel\\LivewirePanelServiceProvider',
+            '--provider' => \AlpDevelop\LivewirePanel\LivewirePanelServiceProvider::class,
             '--tag'      => 'panel-styles',
             '--force'    => $this->option('force'),
         ]);
@@ -68,7 +66,7 @@ final class InstallCommand extends Command
     private function publishViews(): void
     {
         $this->callSilent('vendor:publish', [
-            '--provider' => 'AlpDevelop\\LivewirePanel\\LivewirePanelServiceProvider',
+            '--provider' => \AlpDevelop\LivewirePanel\LivewirePanelServiceProvider::class,
             '--tag'      => 'panel-views',
             '--force'    => $this->option('force'),
         ]);
@@ -98,6 +96,9 @@ final class InstallCommand extends Command
             label: 'URL prefix',
             placeholder: 'admin',
             default: 'admin',
+            validate: fn (string $v): ?string => preg_match('/^[a-z][a-z0-9_-]{0,30}$/', $v)
+                ? null
+                : 'Only lowercase letters, numbers, underscores and hyphens are allowed (max 31 chars).',
             hint: 'Route prefix for the panel (e.g. /admin)',
         );
 
@@ -144,12 +145,20 @@ final class InstallCommand extends Command
             hint: 'Space to select, Enter to confirm',
         );
 
-        $this->writeConfig($panelId, $navigationMode, $theme, $gate, $registration, $cdnLibs);
+        $this->writeConfig(
+            $panelId,
+            (string) $navigationMode,
+            (string) $theme,
+            (string) $gate,
+            $registration,
+            array_values(array_map(strval(...), $cdnLibs)),
+        );
 
         $this->newLine();
         $this->line('  Config updated with your choices.');
     }
 
+    /** @param list<string> $cdnLibs */
     private function writeConfig(
         string $panelId,
         string $navigationMode,
@@ -161,7 +170,7 @@ final class InstallCommand extends Command
         $gateValue      = $gate === 'null' ? 'null' : var_export($gate, true);
         $regValue       = $registration ? 'true' : 'false';
         $cdnBlock       = $this->buildCdnBlock($cdnLibs);
-        $navBlock       = $this->buildNavigationBlock($panelId, $navigationMode);
+        $navBlock       = $this->buildNavigationBlock();
 
         $panels = $this->buildPanelBlock($panelId, $navigationMode, $theme, $gateValue, $regValue, $cdnBlock, $navBlock);
 
@@ -217,11 +226,12 @@ final class InstallCommand extends Command
         return implode("\n", $lines);
     }
 
-    private function buildNavigationBlock(string $panelId, string $navigationMode): string
+    private function buildNavigationBlock(): string
     {
         return "            'sidebar_menu' => [],";
     }
 
+    /** @param list<string> $libs */
     private function buildCdnBlock(array $libs): string
     {
         $cdnMap = [

@@ -18,6 +18,11 @@ final class PanelSearch extends Component
 
     public string $query = '';
 
+    private ?string $lastExecutedQuery = null;
+
+    /** @var array<int, mixed> */
+    private array $lastResults = [];
+
     public function mount(): void
     {
         $context       = app(PanelContext::class);
@@ -26,10 +31,23 @@ final class PanelSearch extends Component
             : app(PanelResolver::class)->resolveFromRequest(request());
     }
 
+    public function updatedQuery(): void
+    {
+        $this->query = mb_substr($this->query, 0, 100);
+    }
+
     public function render(): View
     {
-        $registry = app(SearchRegistry::class);
-        $groups   = $registry->search($this->query, $this->panelId);
+        $groups = [];
+
+        if (mb_strlen($this->query) !== 1) {
+            if ($this->query !== $this->lastExecutedQuery) {
+                $this->lastExecutedQuery = $this->query;
+                $this->lastResults       = app(SearchRegistry::class)->search($this->query, $this->panelId);
+            }
+
+            $groups = $this->lastResults;
+        }
 
         $totalResults = 0;
         foreach ($groups as $group) {

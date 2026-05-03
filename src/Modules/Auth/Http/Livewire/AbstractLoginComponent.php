@@ -42,7 +42,7 @@ abstract class AbstractLoginComponent extends Component
     {
         $this->validate();
 
-        $throttleKey = 'panel-login:' . request()->ip();
+        $throttleKey = 'panel-login:' . sha1(mb_strtolower($this->email)) . ':' . request()->ip();
 
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = RateLimiter::availableIn($throttleKey);
@@ -52,16 +52,16 @@ abstract class AbstractLoginComponent extends Component
         }
 
         $resolver    = app(PanelResolver::class);
-        $panelId     = $resolver->resolveFromRequest(request());
-        $panelConfig = $resolver->resolveById($panelId);
+        $panelConfig = $resolver->resolveById($this->panelId);
         $guard       = (string) ($panelConfig['guard'] ?? 'web');
 
         if (!auth()->guard($guard)->attempt(
             ['email' => $this->email, 'password' => $this->password],
             $this->remember
         )) {
+            $this->password = '';
             RateLimiter::hit($throttleKey, 60);
-            event(new LoginAttempted($panelId, $this->email, false, $guard, request()->ip()));
+            event(new LoginAttempted($this->panelId, $this->email, false, $guard, request()->ip()));
             $this->addError('email', __('auth.failed'));
 
             return;
@@ -71,8 +71,8 @@ abstract class AbstractLoginComponent extends Component
         request()->session()->regenerate();
 
         $user = auth()->guard($guard)->user();
-        event(new LoginAttempted($panelId, $this->email, true, $guard, request()->ip()));
-        event(new UserLoggedIn($panelId, $user !== null ? (int) $user->getAuthIdentifier() : 0, $guard, request()->ip()));
+        event(new LoginAttempted($this->panelId, $this->email, true, $guard, request()->ip()));
+        event(new UserLoggedIn($this->panelId, $user !== null ? (int) $user->getAuthIdentifier() : 0, $guard, request()->ip()));
 
         $this->redirectToHome();
     }
@@ -80,8 +80,7 @@ abstract class AbstractLoginComponent extends Component
     protected function redirectToHome(): void
     {
         $resolver    = app(PanelResolver::class);
-        $panelId     = $resolver->resolveFromRequest(request());
-        $panelConfig = $resolver->resolveById($panelId);
+        $panelConfig = $resolver->resolveById($this->panelId);
         $prefix      = trim((string) ($panelConfig['prefix'] ?? ''), '/');
 
         $this->redirect('/' . $prefix);
