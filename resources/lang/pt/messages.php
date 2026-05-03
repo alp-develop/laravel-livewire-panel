@@ -60,4 +60,8 @@ return [
     'reset_password_email_line2' => 'Este link de redefinição expirará em :count minutos.',
     'reset_password_email_line3' => 'Se você não solicitou a redefinição, nenhuma ação é necessária.',
     'reset_password_action'   => 'Redefinir senha',
+    'not_found_title'          => 'Página não encontrada',
+    'not_found_message'        => 'A página que você está procurando não existe ou foi movida.',
+    'back_to_home'             => 'Voltar ao início',
+    'go_back' => 'Voltar',
 ];

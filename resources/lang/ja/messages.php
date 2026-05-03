@@ -60,4 +60,8 @@ return [
     'reset_password_email_line2' => 'このパスワードリセットリンクは :count 分後に期限切れになります。',
     'reset_password_email_line3' => 'パスワードリセットをリクエストしていない場合は、何もする必要はありません。',
     'reset_password_action'   => 'パスワードをリセット',
+    'not_found_title'          => 'ページが見つかりません',
+    'not_found_message'        => 'お探しのページは存在しないか、移動されました。',
+    'back_to_home'             => 'ホームに戻る',
+    'go_back' => '戻る',
 ];

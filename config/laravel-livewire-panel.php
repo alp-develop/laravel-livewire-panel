@@ -48,6 +48,7 @@ return [
                 'forgot-password'              => null,
                 'reset-password'               => null,
                 'forgot-password-notification' => null,
+                'not-found'                    => null,
                 'sidebar'                      => null,
                 'navbar'                       => null,
             ],
@@ -86,6 +87,12 @@ return [
                     'js'     => ['https://cdn.jsdelivr.net/npm/flatpickr@4.6/dist/flatpickr.min.js'],
                     'routes' => [],
                 ],
+            ],
+
+            'rate_limiting' => [
+                'login'    => ['attempts' => 5, 'decay_minutes' => 1],
+                'register' => ['attempts' => 3, 'decay_minutes' => 1],
+                'search'   => ['attempts' => 30, 'decay_minutes' => 1],
             ],
         ],
 

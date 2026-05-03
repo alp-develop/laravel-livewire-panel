@@ -60,4 +60,8 @@ return [
     'reset_password_email_line2' => 'Este enlace de restablecimiento expirará en :count minutos.',
     'reset_password_email_line3' => 'Si no solicitaste restablecer tu contraseña, no se requiere ninguna acción.',
     'reset_password_action'   => 'Restablecer contraseña',
+    'not_found_title'          => 'Página no encontrada',
+    'not_found_message'        => 'La página que buscas no existe o ha sido movida.',
+    'back_to_home'             => 'Volver al inicio',
+    'go_back' => 'Volver',
 ];

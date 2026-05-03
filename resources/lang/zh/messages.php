@@ -60,4 +60,8 @@ return [
     'reset_password_email_line2' => '此密码重置链接将在 :count 分钟后过期。',
     'reset_password_email_line3' => '如果您没有请求重置密码，则无需采取任何操作。',
     'reset_password_action'   => '重置密码',
+    'not_found_title'          => '页面未找到',
+    'not_found_message'        => '您要找的页面不存在或已被移动。',
+    'back_to_home'             => '返回首页',
+    'go_back' => '返回',
 ];

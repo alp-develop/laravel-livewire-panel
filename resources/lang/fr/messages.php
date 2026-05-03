@@ -60,4 +60,8 @@ return [
     'reset_password_email_line2' => 'Ce lien de réinitialisation expirera dans :count minutes.',
     'reset_password_email_line3' => 'Si vous n\'avez pas demandé de réinitialisation, aucune action n\'est requise.',
     'reset_password_action'   => 'Réinitialiser le mot de passe',
+    'not_found_title'          => 'Page introuvable',
+    'not_found_message'        => 'La page que vous recherchez n\'existe pas ou a été déplacée.',
+    'back_to_home'             => 'Retour à l\'accueil',
+    'go_back' => 'Retour',
 ];

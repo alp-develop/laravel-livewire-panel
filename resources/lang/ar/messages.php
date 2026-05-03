@@ -60,4 +60,8 @@ return [
     'reset_password_email_line2' => 'ستنتهي صلاحية رابط إعادة التعيين هذا خلال :count دقيقة.',
     'reset_password_email_line3' => 'إذا لم تطلب إعادة تعيين كلمة المرور، فلا يلزم اتخاذ أي إجراء.',
     'reset_password_action'   => 'إعادة تعيين كلمة المرور',
+    'not_found_title'          => 'الصفحة غير موجودة',
+    'not_found_message'        => 'الصفحة التي تبحث عنها غير موجودة أو تم نقلها.',
+    'back_to_home'             => 'العودة إلى الرئيسية',
+    'go_back' => 'رجوع',
 ];

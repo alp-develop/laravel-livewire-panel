@@ -60,4 +60,8 @@ return [
     'reset_password_email_line2' => 'This password reset link will expire in :count minutes.',
     'reset_password_email_line3' => 'If you did not request a password reset, no further action is required.',
     'reset_password_action'   => 'Reset Password',
+    'not_found_title'          => 'Page Not Found',
+    'not_found_message'        => 'The page you are looking for doesn\'t exist or has been moved.',
+    'back_to_home'             => 'Back to Home',
+    'go_back' => 'Go Back',
 ];

@@ -10,17 +10,19 @@ use Illuminate\Support\Str;
 final class MakeComponentCommand extends Command
 {
     protected $signature = 'panel:make-component
-                            {type : Component type: login, register, forgot-password, reset-password, forgot-password-notification, sidebar, navbar, notifications, user-popover-header}
+                            {type : Component type: login, register, forgot-password, reset-password, forgot-password-notification, not-found, sidebar, navbar, notifications, user-popover-header}
                             {--panel= : Panel ID (e.g.: admin). Used as class suffix}';
 
     protected $description = 'Generate a custom Livewire component ready to modify';
 
-    private const TYPES = ['login', 'register', 'forgot-password', 'reset-password', 'forgot-password-notification', 'sidebar', 'navbar', 'notifications', 'user-popover-header'];
+    private const TYPES = ['login', 'register', 'forgot-password', 'reset-password', 'forgot-password-notification', 'not-found', 'sidebar', 'navbar', 'notifications', 'user-popover-header'];
 
     public function handle(): int
     {
-        $type    = strtolower((string) $this->argument('type'));
-        $panelId = (string) ($this->option('panel') ?? 'panel');
+        $raw     = $this->argument('type');
+        $type    = strtolower(is_string($raw) ? $raw : '');
+        $rawPanel = $this->option('panel');
+        $panelId = is_string($rawPanel) ? $rawPanel : 'panel';
 
         if (!in_array($type, self::TYPES, true)) {
             $this->error('Invalid type. Use: ' . implode(', ', self::TYPES));
@@ -52,12 +54,19 @@ final class MakeComponentCommand extends Command
                 'App\\Livewire\\Auth',
                 "livewire.auth.{$panelKebab}-{$viewName}",
             ],
+            'not-found' => [
+                app_path("Livewire/{$className}.php"),
+                resource_path("views/livewire/{$panelKebab}-{$viewName}.blade.php"),
+                'App\\Livewire',
+                "livewire.{$panelKebab}-{$viewName}",
+            ],
             'sidebar', 'navbar' => [
                 app_path("Livewire/{$className}.php"),
                 resource_path("views/livewire/{$panelKebab}-{$viewName}.blade.php"),
                 'App\\Livewire',
                 "livewire.{$panelKebab}-{$viewName}",
             ],
+            default => throw new \UnexpectedValueException("Unhandled component type: {$type}"),
         };
 
         if (file_exists($classPath)) {
@@ -65,7 +74,7 @@ final class MakeComponentCommand extends Command
             return Command::FAILURE;
         }
 
-        $classContent  = $this->buildClass($type, $namespace, $className, $viewKey, $panelStudly);
+        $classContent  = $this->buildClass($type, $namespace, $className, $viewKey);
         $viewContent   = $this->buildView($type);
 
         $this->ensureDirectory(dirname($classPath));
@@ -86,20 +95,24 @@ final class MakeComponentCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function buildClass(string $type, string $namespace, string $className, string $viewKey, string $panelStudly): string
+    private function buildClass(string $type, string $namespace, string $className, string $viewKey): string
     {
         $abstract = match ($type) {
             'login'           => 'AbstractLoginComponent',
             'register'        => 'AbstractRegisterComponent',
             'forgot-password' => 'AbstractForgotPasswordComponent',
             'reset-password'  => 'AbstractResetPasswordComponent',
+            'not-found'       => 'AbstractNotFoundComponent',
             'sidebar'         => 'AbstractSidebar',
             'navbar'          => 'AbstractNavbar',
+            default           => throw new \UnexpectedValueException("Unhandled type: {$type}"),
         };
 
         $use = match ($type) {
             'login', 'register', 'forgot-password', 'reset-password' => "use AlpDevelop\\LivewirePanel\\Modules\\Auth\\Http\\Livewire\\{$abstract};",
+            'not-found' => "use AlpDevelop\\LivewirePanel\\Modules\\Errors\\Http\\Livewire\\{$abstract};",
             'sidebar', 'navbar' => "use AlpDevelop\\LivewirePanel\\View\\Livewire\\{$abstract};",
+            default             => throw new \UnexpectedValueException("Unhandled type: {$type}"),
         };
 
         $layoutAttr = match ($type) {
@@ -107,10 +120,11 @@ final class MakeComponentCommand extends Command
             'register'        => "\n#[Layout('panel::layouts.auth-base', ['title' => 'Create account'])]",
             'forgot-password' => "\n#[Layout('panel::layouts.auth-base', ['title' => 'Forgot password'])]",
             'reset-password'  => "\n#[Layout('panel::layouts.auth-base', ['title' => 'Reset password'])]",
+            'not-found'       => "\n#[Layout('panel::layouts.app', ['title' => '404 Not Found'])]",
             default           => '',
         };
 
-        $layoutUse = in_array($type, ['login', 'register', 'forgot-password', 'reset-password'], true)
+        $layoutUse = in_array($type, ['login', 'register', 'forgot-password', 'reset-password', 'not-found'], true)
             ? "\nuse Livewire\\Attributes\\Layout;"
             : '';
 
@@ -144,8 +158,10 @@ final class MakeComponentCommand extends Command
             'register'        => $this->registerViewStub(),
             'forgot-password' => $this->forgotPasswordViewStub(),
             'reset-password'  => $this->resetPasswordViewStub(),
+            'not-found'       => $this->notFoundViewStub(),
             'sidebar'  => "@extends('panel::livewire.sidebar')\n\n{{-- Modify this view to customize the sidebar --}}\n",
             'navbar'   => "@extends('panel::livewire.navbar')\n\n{{-- Modify this view to customize the navbar --}}\n",
+            default    => '',
         };
     }
 
@@ -697,5 +713,20 @@ BLADE;
         if (!is_dir($path)) {
             mkdir($path, 0755, true);
         }
+    }
+
+    private function notFoundViewStub(): string
+    {
+        return <<<'BLADE'
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;text-align:center;min-height:40vh">
+    <div style="font-size:6rem;font-weight:800;line-height:1;margin-bottom:1rem;color:var(--panel-primary,#4f46e5)">404</div>
+    <h1 style="margin:0 0 .75rem;font-size:1.5rem;font-weight:700;color:var(--panel-text-primary,#1e293b)">{{ __('panel::messages.not_found_title') }}</h1>
+    <p style="margin:0 0 2rem;font-size:.95rem;color:var(--panel-text-muted,#64748b);max-width:420px;line-height:1.6">{{ __('panel::messages.not_found_message') }}</p>
+    <a href="{{ panel_route($panelId, 'home') }}" style="display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1.25rem;background:var(--panel-primary,#4f46e5);color:#fff;font-size:.875rem;font-weight:500;border-radius:6px;text-decoration:none">
+        <x-panel::icon name="arrow-left" size="14" />
+        {{ __('panel::messages.back_to_home') }}
+    </a>
+</div>
+BLADE;
     }
 }
