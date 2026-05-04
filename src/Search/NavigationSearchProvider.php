@@ -76,10 +76,10 @@ final class NavigationSearchProvider implements SearchProviderInterface
         }
 
         return [
-            'label'       => $item->label,
+            'label'       => __($item->label),
             'icon'        => $item->icon ?: 'layer-group',
             'url'         => route($item->route),
-            'description' => $item->description,
+            'description' => $item->description !== '' ? __($item->description) : $item->description,
         ];
     }
 }

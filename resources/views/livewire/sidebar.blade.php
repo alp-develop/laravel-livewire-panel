@@ -9,82 +9,53 @@
             <span class="sidebar-brand-name">{{ $headerText }}</span>
         </div>
 
-        @if (!empty($panelConfig['back_to']))
-            @php $backPanelId = $panelConfig['back_to']; @endphp
-            @if (Route::has("panel.{$backPanelId}.home"))
-                <div style="padding:.5rem .75rem;border-bottom:1px solid rgba(255,255,255,0.08)">
-                    <a href="{{ route("panel.{$backPanelId}.home") }}"
-                        style="display:flex;align-items:center;gap:.6rem;color:#64748b;font-size:.8rem;text-decoration:none;padding:.45rem .5rem;border-radius:6px;transition:background .15s"
-                        onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#94a3b8'"
-                        onmouseout="this.style.background='transparent';this.style.color='#64748b'">
-                        <x-panel::icon name="arrow-left" size="15" style="flex-shrink:0" />
-                        <span class="sidebar-label">{{ __('panel::messages.back_to', ['name' => ucfirst($backPanelId)]) }}</span>
-                    </a>
-                </div>
-            @endif
+        @if ($backTo !== null)
+            <div style="padding:.5rem .75rem;border-bottom:1px solid rgba(255,255,255,0.08)">
+                <a href="{{ route($backTo['route']) }}"
+                    style="display:flex;align-items:center;gap:.6rem;color:#64748b;font-size:.8rem;text-decoration:none;padding:.45rem .5rem;border-radius:6px;transition:background .15s"
+                    onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#94a3b8'"
+                    onmouseout="this.style.background='transparent';this.style.color='#64748b'">
+                    <x-panel::icon name="arrow-left" size="15" style="flex-shrink:0" />
+                    <span class="sidebar-label">{{ __('panel::messages.back_to', ['name' => ucfirst($backTo['id'])]) }}</span>
+                </a>
+            </div>
         @endif
 
         <nav class="panel-sidebar-nav">
             @foreach ($navItems as $item)
-                @if ($item instanceof \AlpDevelop\LivewirePanel\Navigation\NavigationGroup)
-                    @php
-                        $canSeeGroup = (empty($item->permission) || $gate->allows($item->permission))
-                            && (empty($item->roles) || $gate->hasRole($item->roles));
-                    @endphp
-                    @if ($canSeeGroup)
-                        <div class="panel-nav-group" x-data="{ open: false }">
-                            <button
-                                type="button"
-                                class="panel-nav-item panel-nav-group-toggle"
-                                @click="open = !open"
-                            >
-                                <x-panel::icon :name="$item->icon ?: 'folder'" size="18" />
-                                <span class="sidebar-label">{{ __($item->label) }}</span>
-                                <x-panel::icon name="chevron-down" size="14" class="panel-nav-chevron" ::class="open ? 'panel-nav-chevron-open' : ''" />
-                            </button>
-                            <div class="panel-nav-group-children" x-show="open" x-collapse>
-                                @foreach ($item->children as $child)
-                                    @php
-                                        $canSeeChild = (empty($child->permission) || $gate->allows($child->permission))
-                                            && (empty($child->roles) || $gate->hasRole($child->roles));
-                                    @endphp
-                                    @if ($canSeeChild)
-                                        @php
-                                            $childPath = rtrim(parse_url(route($child->route), PHP_URL_PATH), '/');
-                                            $isChildActive = $activePath === $childPath;
-                                        @endphp
-                                        <a
-                                            href="{{ route($child->route) }}"
-                                            wire:navigate
-                                            class="panel-nav-item panel-nav-child {{ $isChildActive ? 'active' : '' }}"
-                                        >
-                                            <x-panel::icon :name="$child->icon ?: 'layer-group'" size="16" />
-                                            <span class="sidebar-label">{{ $child->label }}</span>
-                                        </a>
-                                    @endif
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
-                @else
-                    @php
-                        $canSeeItem = (empty($item->permission) || $gate->allows($item->permission))
-                            && (empty($item->roles) || $gate->hasRole($item->roles));
-                    @endphp
-                    @if ($canSeeItem)
-                        @php
-                            $itemPath = rtrim(parse_url(route($item->route), PHP_URL_PATH), '/');
-                            $isActive = $activePath === $itemPath;
-                        @endphp
-                        <a
-                            href="{{ route($item->route) }}"
-                            wire:navigate
-                            class="panel-nav-item {{ $isActive ? 'active' : '' }}"
+                @if ($item['type'] === 'group')
+                    <div class="panel-nav-group" x-data="{ open: {{ $item['open'] ? 'true' : 'false' }} }">
+                        <button
+                            type="button"
+                            class="panel-nav-item panel-nav-group-toggle"
+                            @click="open = !open"
                         >
-                            <x-panel::icon :name="$item->icon ?: 'layer-group'" size="18" />
-                            <span class="sidebar-label">{{ __($item->label) }}</span>
-                        </a>
-                    @endif
+                            <x-panel::icon :name="$item['icon'] ?: 'folder'" size="18" />
+                            <span class="sidebar-label">{{ __($item['label']) }}</span>
+                            <x-panel::icon name="chevron-down" size="14" class="panel-nav-chevron" ::class="open ? 'panel-nav-chevron-open' : ''" />
+                        </button>
+                        <div class="panel-nav-group-children" x-show="open" x-collapse>
+                            @foreach ($item['children'] as $child)
+                                <a
+                                    href="{{ route($child['route']) }}"
+                                    wire:navigate
+                                    class="panel-nav-item panel-nav-child {{ $child['active'] ? 'active' : '' }}"
+                                >
+                                    <x-panel::icon :name="$child['icon'] ?: 'layer-group'" size="16" />
+                                    <span class="sidebar-label">{{ $child['label'] }}</span>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @else
+                    <a
+                        href="{{ route($item['route']) }}"
+                        wire:navigate
+                        class="panel-nav-item {{ $item['active'] ? 'active' : '' }}"
+                    >
+                        <x-panel::icon :name="$item['icon'] ?: 'layer-group'" size="18" />
+                        <span class="sidebar-label">{{ __($item['label']) }}</span>
+                    </a>
                 @endif
             @endforeach
         </nav>

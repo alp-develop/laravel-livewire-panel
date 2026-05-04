@@ -111,9 +111,21 @@
         }
     }
 
+    var sidebarHoverWasOpen = false;
+
     document.addEventListener('livewire:navigating', function (e) {
+        var inner = document.querySelector('.panel-sidebar-inner');
+        sidebarHoverWasOpen = inner ? inner.classList.contains('panel-sidebar--hover-open') : false;
+
         e.detail.onSwap(function () {
             applyPanelState();
+            if (sidebarHoverWasOpen
+                && html.getAttribute('data-sidebar-hover-expand') === 'true'
+                && html.getAttribute('data-sidebar-collapsed') === 'true'
+            ) {
+                var newInner = document.querySelector('.panel-sidebar-inner');
+                if (newInner) newInner.classList.add('panel-sidebar--hover-open');
+            }
             if (html.getAttribute('data-page-transition') === 'fade') {
                 var content = document.querySelector('.panel-content');
                 if (content) {
