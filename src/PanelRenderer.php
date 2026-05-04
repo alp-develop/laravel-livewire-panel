@@ -25,7 +25,11 @@ final class PanelRenderer
 
     public static function assetUrl(string $file): string
     {
-        return url('/_panel/assets/' . ltrim($file, '/'));
+        $path     = ltrim($file, '/');
+        $fullPath = __DIR__ . '/../resources/assets/' . $path;
+        $version  = file_exists($fullPath) ? filemtime($fullPath) : 1;
+
+        return url('/_panel/assets/' . $path) . '?v=' . $version;
     }
 
     public static function resolvePanelId(): string

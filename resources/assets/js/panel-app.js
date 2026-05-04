@@ -176,4 +176,19 @@
             if (content) content.classList.remove('panel-page-entering');
         }
     });
+
+    document.addEventListener('visibilitychange', function () {
+        window.dispatchEvent(new Event(document.hidden ? 'offline' : 'online'));
+    });
+
+    document.addEventListener('livewire:init', function () {
+        Livewire.interceptRequest(function (interceptor) {
+            interceptor.onError(function (data) {
+                if (data.response && data.response.status >= 500) {
+                    data.preventDefault();
+                    window.location.reload();
+                }
+            });
+        });
+    });
 })();

@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.0.5] - 2026-05-04
+
+### Fixed
+
+- Poll requests now pause completely when the browser tab is in the background, preventing 504 Gateway Timeout errors caused by server cold-start under idle conditions. Uses the browser `visibilitychange` API to signal Livewire's internal offline state (compatible with Livewire 3 and 4).
+- If a poll request returns a 5xx error (e.g. 504), Livewire's error modal is suppressed and the page reloads cleanly instead of showing the nginx error page.
+
+
 ## [1.0.4] - 2026-05-04
 
 ### Added
