@@ -142,7 +142,7 @@ abstract class AbstractSidebar extends Component
         return true;
     }
 
-    /** @param list<NavigationItem|NavigationGroup> $items
+    /** @param array<int, NavigationItem|NavigationGroup> $items
      *  @return list<array<string, mixed>> */
     private function buildNavItems(array $items, PanelGate $gate): array
     {

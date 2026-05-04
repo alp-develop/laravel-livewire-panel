@@ -161,7 +161,7 @@ abstract class AbstractNavbar extends Component
             $hasRole       = empty($item['roles']) || $gate->hasRole($item['roles']);
 
             if ($hasPermission && $hasRole) {
-                if (($item['type'] ?? '') !== 'divider' && !Route::has($item['route'] ?? '')) {
+                if (!Route::has($item['route'] ?? '')) {
                     continue;
                 }
                 $filtered[] = $item;
