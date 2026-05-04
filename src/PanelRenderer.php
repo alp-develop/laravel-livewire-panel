@@ -172,13 +172,21 @@ final class PanelRenderer
         $styleId  = $panelCfg['customization'] ?? 'default';
         $styleCfg = $kernel->styleConfig()->has($styleId) ? $kernel->styleConfig()->get($styleId) : [];
 
+        $localeEnabled     = (bool) ($panelCfg['locale']['enabled'] ?? false);
+        $localeShowOnAuth  = $localeEnabled && (bool) ($panelCfg['locale']['show_on_auth'] ?? false);
+        $darkMode          = (bool) ($styleCfg['layout']['dark_mode'] ?? false);
+        $darkShowOnAuth    = $darkMode && (bool) ($styleCfg['layout']['dark_mode_show_on_auth'] ?? false);
+
         $result = [
+            'title'                  => $styleCfg['layout']['title'] ?? null,
             'favicon'                => $styleCfg['layout']['favicon'] ?? null,
-            'dark_mode'              => $styleCfg['layout']['dark_mode'] ?? false,
-            'dark_mode_show_on_auth' => $styleCfg['layout']['dark_mode_show_on_auth'] ?? false,
+            'dark_mode'              => $darkMode,
+            'dark_mode_show_on_auth' => $darkShowOnAuth,
             'dark_mode_classes'      => $styleCfg['layout']['dark_mode_classes'] ?? [],
             'dark_mode_dispatch'     => $styleCfg['layout']['dark_mode_dispatch'] ?? null,
             'dark_mode_callback'     => $styleCfg['layout']['dark_mode_callback'] ?? null,
+            'locale_enabled'         => $localeEnabled,
+            'locale_show_on_auth'    => $localeShowOnAuth,
             'page_transition'    => $styleCfg['layout']['page_transition'] ?? null,
             'back_to_top'        => $styleCfg['layout']['back_to_top'] ?? false,
             'content_max_width'  => $styleCfg['layout']['content_max_width'] ?? null,

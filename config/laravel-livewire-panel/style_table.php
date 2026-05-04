@@ -115,6 +115,7 @@ return [
     ],
 
     'layout' => [
+        'title'                  => 'Panel Admin',
         'favicon'                => '/favicon.ico',
         'dark_mode'              => true,
         'dark_mode_show_on_auth' => false,
