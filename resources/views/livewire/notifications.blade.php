@@ -26,8 +26,7 @@
                             @else
                                 <div style="display:flex;align-items:flex-start;gap:0.65rem;flex:1;min-width:0">
                             @endif
-                                @php $safeColor = (!empty($item['color']) && preg_match('/^#[0-9a-fA-F]{6}$/', $item['color'])) ? $item['color'] : ''; @endphp
-                                <div class="panel-notification-icon-wrap" style="{{ $safeColor !== '' ? 'background:' . $safeColor . '20;color:' . $safeColor : '' }}">
+                                <div class="panel-notification-icon-wrap" style="{{ $item['safeColor'] !== '' ? 'background:' . $item['safeColor'] . '20;color:' . $item['safeColor'] : '' }}">
                                     <x-panel::icon :name="$item['icon'] ?? 'bell'" size="16" />
                                 </div>
                                 <div class="panel-notification-body">

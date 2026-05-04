@@ -68,7 +68,14 @@ abstract class AbstractPanelNotifications extends Component
         if ($this->cachedCount === null) {
             $provider          = app(NotificationRegistry::class)->resolve($this->panelId);
             $this->cachedCount = $provider ? $provider->count($this->panelId) : 0;
-            $this->cachedItems = $provider ? $provider->items($this->panelId) : [];
+            $rawItems          = $provider ? $provider->items($this->panelId) : [];
+            $this->cachedItems = array_map(function (array $item): array {
+                $color = (string) ($item['color'] ?? '');
+                $item['safeColor'] = ($color !== '' && (bool) preg_match('/^#[0-9a-fA-F]{6}$/', $color))
+                    ? $color
+                    : '';
+                return $item;
+            }, $rawItems);
         }
 
         return view($this->view(), [

@@ -50,13 +50,38 @@ final class PanelSearch extends Component
         }
 
         $totalResults = 0;
-        foreach ($groups as $group) {
-            $totalResults += count($group['items']);
+        $index        = 0;
+
+        foreach ($groups as &$group) {
+            foreach ($group['items'] as &$item) {
+                $item['index']                = $index++;
+                $item['labelHighlighted']     = $this->highlight($item['label'] ?? '', $this->query);
+                $item['descHighlighted']      = isset($item['description']) && $item['description'] !== ''
+                    ? $this->highlight($item['description'], $this->query)
+                    : '';
+                $totalResults++;
+            }
         }
+        unset($group, $item);
 
         return view('panel::livewire.search', [
             'groups'       => $groups,
             'totalResults' => $totalResults,
         ]);
+    }
+
+    private function highlight(string $text, string $query): string
+    {
+        if (trim($query) === '') {
+            return e($text);
+        }
+
+        $escaped = preg_quote($query, '/');
+
+        return preg_replace(
+            '/(' . $escaped . ')/iu',
+            '<mark class="panel-search-mark">$1</mark>',
+            e($text)
+        ) ?? e($text);
     }
 }

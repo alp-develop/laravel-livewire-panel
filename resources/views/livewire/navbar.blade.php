@@ -88,16 +88,14 @@
                             @if (($menuItem['type'] ?? '') === 'divider')
                                 <div class="panel-sidebar-user-popover-divider"></div>
                             @else
-                                @if (Route::has($menuItem['route'] ?? ''))
-                                    <a href="{{ route($menuItem['route']) }}" wire:navigate class="panel-sidebar-user-popover-item" @click="open = false">
-                                        <x-panel::icon :name="$menuItem['icon'] ?? 'layer-group'" size="16" />
-                                        {{ __($menuItem['label'] ?? '') }}
-                                    </a>
-                                @endif
+                                <a href="{{ route($menuItem['route']) }}" wire:navigate class="panel-sidebar-user-popover-item" @click="open = false">
+                                    <x-panel::icon :name="$menuItem['icon'] ?? 'layer-group'" size="16" />
+                                    {{ __($menuItem['label'] ?? '') }}
+                                </a>
                             @endif
                         @endforeach
                     @else
-                        @if (Route::has($profileRoute))
+                        @if ($hasProfileRoute)
                             <a href="{{ route($profileRoute) }}" wire:navigate class="panel-sidebar-user-popover-item" @click="open = false">
                                 <x-panel::icon name="user" size="16" />
                                 {{ __('panel::messages.profile') }}
@@ -105,7 +103,7 @@
                         @endif
                     @endif
                     <div class="panel-sidebar-user-popover-divider"></div>
-                    @if (Route::has($logoutRoute))
+                    @if ($hasLogoutRoute)
                         <form method="POST" action="{{ route($logoutRoute) }}" style="margin:0">
                             @csrf
                             <button type="submit" class="panel-sidebar-user-popover-item panel-sidebar-user-popover-item--danger">

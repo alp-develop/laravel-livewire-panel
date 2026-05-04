@@ -14,20 +14,6 @@
     class="panel-search-overlay"
     style="display:none"
 >
-    @php
-        $highlight = function (string $text, string $q): string {
-            if (trim($q) === '') {
-                return e($text);
-            }
-            $escaped = preg_quote($q, '/');
-            return preg_replace(
-                '/(' . $escaped . ')/iu',
-                '<mark class="panel-search-mark">$1</mark>',
-                e($text)
-            ) ?? e($text);
-        };
-    @endphp
-
     <div class="panel-search-backdrop" x-on:click="open = false"></div>
 
     <div
@@ -59,7 +45,6 @@
 
         <div class="panel-search-results" x-ref="searchResults">
             @if ($totalResults > 0)
-                @php $globalIndex = 0; @endphp
                 @foreach ($groups as $group)
                     <div class="panel-search-category">
                         <x-panel::icon :name="$group['icon']" size="14" />
@@ -68,22 +53,21 @@
                     @foreach ($group['items'] as $item)
                         <div
                             class="panel-search-item"
-                            data-search-index="{{ $globalIndex }}"
-                            :class="selectedIndex === {{ $globalIndex }} ? 'panel-search-item--active' : ''"
-                            x-on:mouseenter="selectedIndex = {{ $globalIndex }}"
+                            data-search-index="{{ $item['index'] }}"
+                            :class="selectedIndex === {{ $item['index'] }} ? 'panel-search-item--active' : ''"
+                            x-on:mouseenter="selectedIndex = {{ $item['index'] }}"
                         >
                             <a href="{{ $item['url'] }}" wire:navigate x-on:click="open = false" class="panel-search-link">
                                 <x-panel::icon :name="$item['icon'] ?? 'layer-group'" size="18" class="panel-search-item-icon" />
                                 <div class="panel-search-item-text">
-                                    <span class="panel-search-item-label">{!! $highlight($item['label'], $query) !!}</span>
-                                    @if (!empty($item['description']))
-                                        <span class="panel-search-item-desc">{!! $highlight($item['description'], $query) !!}</span>
+                                    <span class="panel-search-item-label">{!! $item['labelHighlighted'] !!}</span>
+                                    @if ($item['descHighlighted'] !== '')
+                                        <span class="panel-search-item-desc">{!! $item['descHighlighted'] !!}</span>
                                     @endif
                                 </div>
                                 <x-panel::icon name="arrow-right" size="14" class="panel-search-item-arrow" />
                             </a>
                         </div>
-                        @php $globalIndex++; @endphp
                     @endforeach
                 @endforeach
             @else

@@ -13,6 +13,7 @@ use AlpDevelop\LivewirePanel\PanelContext;
 use AlpDevelop\LivewirePanel\PanelRenderer;
 use AlpDevelop\LivewirePanel\PanelResolver;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Route;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 
@@ -54,10 +55,15 @@ abstract class AbstractNavbar extends Component
 
         $navbarComponents = $panelConfig['navbar_components'] ?? [];
 
+        $logoutRoute  = "panel.{$this->panelId}.auth.logout";
+        $profileRoute = "panel.{$this->panelId}.profile.index";
+
         return view($this->view(), [
             'user'              => $user,
-            'logoutRoute'       => "panel.{$this->panelId}.auth.logout",
-            'profileRoute'      => "panel.{$this->panelId}.profile.index",
+            'logoutRoute'       => $logoutRoute,
+            'hasLogoutRoute'    => Route::has($logoutRoute),
+            'profileRoute'      => $profileRoute,
+            'hasProfileRoute'   => Route::has($profileRoute),
             'userMenu'          => $this->resolveUserMenu($panelConfig),
             'showSearch'        => $layoutConfig['show_search'],
             'showNotifications' => $layoutConfig['show_notifications'],
@@ -155,6 +161,9 @@ abstract class AbstractNavbar extends Component
             $hasRole       = empty($item['roles']) || $gate->hasRole($item['roles']);
 
             if ($hasPermission && $hasRole) {
+                if (($item['type'] ?? '') !== 'divider' && !Route::has($item['route'] ?? '')) {
+                    continue;
+                }
                 $filtered[] = $item;
             }
         }

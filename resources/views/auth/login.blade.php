@@ -51,11 +51,11 @@
     </form>
 
     <div class="auth-footer">
-        @if (Route::has("panel.{$panelId}.auth.forgot-password"))
+        @if ($hasForgotRoute)
             <a href="{{ route("panel.{$panelId}.auth.forgot-password") }}">{{ __('panel::messages.forgot_password') }}</a>
         @endif
     </div>
-    @if (Route::has("panel.{$panelId}.auth.register"))
+    @if ($hasRegisterRoute)
         <div class="auth-footer">
             <a href="{{ route("panel.{$panelId}.auth.register") }}">{{ __('panel::messages.create_account') }}</a>
         </div>

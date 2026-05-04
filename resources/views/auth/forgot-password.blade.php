@@ -29,7 +29,7 @@
     @endif
 
     <div class="auth-footer">
-        @if (Route::has("panel.{$panelId}.auth.login"))
+        @if ($hasLoginRoute)
             <a href="{{ route("panel.{$panelId}.auth.login") }}">
                 <x-panel::icon name="arrow-left" size="14" style="vertical-align:-2px;margin-right:2px" />
                 {{ __('panel::messages.back_to_sign_in') }}
