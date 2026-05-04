@@ -57,7 +57,7 @@
     </form>
 
     <div class="auth-footer">
-        @if ($hasLoginRoute)
+        @if ($hasLoginRoute ?? false)
             <a href="{{ route("panel.{$panelId}.auth.login") }}">{{ __('panel::messages.already_have_account') }}</a>
         @endif
     </div>
