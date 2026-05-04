@@ -139,6 +139,7 @@ return [
     ],
 
     'layout' => [
+        'title'                  => null,
         'favicon'                => '/favicon.ico',
         'dark_mode'              => true,
         'dark_mode_show_on_auth' => false,
@@ -222,6 +223,7 @@ To implement a notification provider and feed data into the bell icon, see [Noti
 
 | Key | Type | Default | Description |
 |---|---|---|---|
+| `title` | string\|null | `null` | Global `<title>` tag for all layouts. When set, it is used as the default title for every page (app, auth, blank, public). A page-level `$title` passed via `#[Layout]` always takes priority over this value. `null` = falls back to each layout's built-in default (`'Panel'` / `'Acceso'` / `'Page'`) |
 | `favicon` | string\|null | `null` | Path to favicon (e.g. `'/favicon.ico'`). Renders `<link rel="icon">` in `<head>` to prevent re-fetch during SPA navigation |
 | `dark_mode` | bool | `true` | Enable dark mode toggle in navbar |
 | `dark_mode_show_on_auth` | bool | `false` | Show dark mode toggle on login, register and forgot password pages |

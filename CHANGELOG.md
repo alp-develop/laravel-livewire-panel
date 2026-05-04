@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [1.0.4] - 2026-05-04
+
+### Added
+
+- `layout.title` in style config — global `<title>` tag applied to all layouts (`app`, `auth`, `auth-base`, `blank`, `public`). A page-level `$title` set via `#[Layout]` always takes priority. `null` falls back to each layout's built-in default.
+
+### Fixed
+
+- Navigation groups (`children`) now render at full sidebar width and inherit theme CSS variables.
+- Navigation groups auto-expand when their active child is the current route.
+- Chevron icon hidden on collapsed sidebar; visible when expanded or hover-expanded.
+- Sidebar hover-expand state preserved across SPA navigation: `panel-sidebar--hover-open` is captured before the DOM swap and restored after if the mouse is still over the sidebar.
+- Navigation search results (`NavigationSearchProvider`) now apply translations to `label` and `description` via `__()`, matching sidebar behavior.
+
+### Refactored
+
+- PHP logic moved out of all Livewire blades (`sidebar`, `navbar`, `search`, `notifications`) into component `render()` methods. All blades are now purely presentational.
+- Auth views (`login`, `register`, `forgot-password`, `reset-password`) no longer call `Route::has()` — booleans pre-computed in each component's `render()`.
+- Layout blades (`auth`, `auth-base`, `blank`) no longer contain `@php` blocks. `PanelRenderer::layoutConfig()` now exposes `locale_enabled`, `locale_show_on_auth`, and pre-computes `dark_mode_show_on_auth`.
+
 ## [1.0.3] - 2026-05-02
 
 ### Added
